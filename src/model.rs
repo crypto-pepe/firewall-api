@@ -36,7 +36,6 @@ pub struct BanTargetRequest {
     pub target: Vec<BanTarget>,
 }
 
-
 pub fn target_to_key(bt: &Vec<BanTarget>) -> Result<String, BanTargetConversionError> {
     let mut bt_value = BTreeMap::new();
 
@@ -63,7 +62,6 @@ pub fn target_to_key(bt: &Vec<BanTarget>) -> Result<String, BanTargetConversionE
     }
     Ok(target)
 }
-
 
 #[cfg(test)]
 mod tests {

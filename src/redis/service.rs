@@ -1,11 +1,12 @@
-use num_traits::cast::ToPrimitive;
 use std::sync::Arc;
 use std::time;
 
-use crate::errors;
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
-use redis::cmd;
+use num_traits::cast::ToPrimitive;
+use redis::AsyncCommands;
+
+use crate::errors;
 
 #[derive(Clone)]
 pub struct Service {
@@ -38,9 +39,8 @@ impl Service {
             }
         };
 
-        let ttl: i128 = cmd("TTL")
-            .arg(&key)
-            .query_async(&mut *conn)
+        let ttl: i128 = conn
+            .ttl(&key)
             .await
             .map_err(|re| errors::Redis::CMD(Arc::new(re), "TTL".to_string()))?;
         match ttl {
