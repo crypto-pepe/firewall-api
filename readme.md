@@ -31,8 +31,8 @@ telemetry:
 | redis.host                | Yes      | Redis service host                 |
 | redis.port                | Yes      | Redis service port                 |
 | redis.timeout_sec         | Yes      | Redis connection timeout (seconds) |
-| server.host               | Yes      | Firewall-executor service host     |
-| server.port               | Yes      | Firewall-executor service port     |
+| server.host               | Yes      | Firewall-api service host          |
+| server.port               | Yes      | Firewall-api service port          |
 | telemetry.svc_name        | Yes      | Service name for tracing           |
 | telemetry.jaeger_endpoint | No       | Jaeger endpoint                    |
 
