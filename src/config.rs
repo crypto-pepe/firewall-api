@@ -4,17 +4,17 @@ use std::io::Read;
 
 use config::ConfigError;
 use serde::{Deserialize, Serialize};
-use slog_extlog_derive::SlogValue;
 
-use crate::redis;
 use crate::server;
+use crate::{redis, telemetry};
 
 pub const DEFAULT_CONFIG: &str = include_str!("../config.yaml");
 
-#[derive(Clone, Debug, Serialize, Deserialize, SlogValue)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
     pub redis: redis::Config,
     pub server: server::Config,
+    pub telemetry: telemetry::Config,
 }
 
 impl Config {

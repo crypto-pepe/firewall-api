@@ -13,6 +13,7 @@ use crate::errors::CheckBanError;
 
 #[async_trait]
 impl BanChecker for RedisBanChecker {
+    #[tracing::instrument(skip(self))]
     async fn ban_ttl(&self, bt: String) -> Result<Option<u64>, CheckBanError> {
         return match self.get_ttl(bt).await {
             Ok(ttl) => Ok(ttl),
@@ -37,12 +38,15 @@ impl RedisBanChecker {
         let timeout = time::Duration::from_secs(timeout_secs);
         Ok(RedisBanChecker { pool, timeout })
     }
+
+    #[tracing::instrument(skip(self))]
     pub async fn get_ttl(&self, key: String) -> Result<Option<u64>, errors::Redis> {
         tokio::time::timeout(self.timeout, self._get_ttl(key))
             .await
             .map_err(|_| errors::Redis::Timeout)?
     }
 
+    #[tracing::instrument(skip(self))]
     async fn _get_ttl<'a>(&self, key: String) -> Result<Option<u64>, errors::Redis> {
         let pool = self.pool.clone();
 

@@ -13,14 +13,12 @@ struct ErrorResponse {
 #[derive(Debug, PartialEq)]
 pub enum BanTargetConversionError {
     FieldRequired(String),
-    InvalidTypeCount,
 }
 
 impl Display for BanTargetConversionError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         return match self {
             BanTargetConversionError::FieldRequired(field_name) => f.write_str(field_name),
-            BanTargetConversionError::InvalidTypeCount => f.write_str("invalid type count"),
         };
     }
 }
@@ -47,11 +45,6 @@ impl ResponseError for BanTargetConversionError {
                     details: Some(details),
                 }
             }
-            BanTargetConversionError::InvalidTypeCount => ErrorResponse {
-                code: 400,
-                reason: self.to_string(),
-                details: None,
-            },
         };
 
         HttpResponse::build(StatusCode::BAD_REQUEST).json(err_resp)

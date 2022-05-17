@@ -3,21 +3,23 @@ extern crate core;
 use std::io;
 
 use firewall_executor::ban_checker::redis::RedisBanChecker;
-use firewall_executor::config;
 use firewall_executor::redis::get_pool;
 use firewall_executor::server::Server;
-use pepe_log::info;
+use firewall_executor::{config, telemetry};
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
-    info!("start application");
+    tracing::info!("start application");
 
     let cfg = match config::Config::load() {
         Ok(a) => a,
         Err(e) => panic!("can't read config {:?}", e),
     };
 
-    info!("config loaded"; "config" => &cfg);
+    tracing::info!("config loaded; config={:?}", &cfg);
+
+    let subscriber = telemetry::get_subscriber(&cfg.telemetry);
+    telemetry::init_subscriber(subscriber);
 
     let redis_pool = match get_pool(&cfg.redis).await {
         Ok(p) => p,
