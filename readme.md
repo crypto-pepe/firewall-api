@@ -1,6 +1,7 @@
 # Firewall-api
 
-Implements `POST /api/check-ban` from [this](https://github.com/crypto-pepe/firewall/wiki/Banned-Targets#check-targets-ban)
+Implements `POST /api/check-ban`
+from [this](https://github.com/crypto-pepe/firewall/wiki/Banned-Targets#check-targets-ban)
 api
 
 ## ENVs
@@ -20,12 +21,18 @@ redis:
 server:
   host: '127.0.0.1'
   port: 8000
+telemetry:
+  svc_name: "firewall-api"
+  jaeger_endpoint: "localhost:6831"
 ```
 
-| Name              | Required | Note                               |
-|-------------------|----------|------------------------------------|
-| redis.host        | Yes      | Redis service host                 |
-| redis.port        | Yes      | Redis service port                 |
-| redis.timeout_sec | Yes      | Redis connection timeout (seconds) |
-| server.host       | Yes      | Firewall service host              |
-| server.port       | Yes      | Firewall service port              |
+| Name                      | Required | Note                               |
+|---------------------------|----------|------------------------------------|
+| redis.host                | Yes      | Redis service host                 |
+| redis.port                | Yes      | Redis service port                 |
+| redis.timeout_sec         | Yes      | Redis connection timeout (seconds) |
+| server.host               | Yes      | Firewall-executor service host     |
+| server.port               | Yes      | Firewall-executor service port     |
+| telemetry.svc_name        | Yes      | Service name for tracing           |
+| telemetry.jaeger_endpoint | No       | Jaeger endpoint                    |
+
