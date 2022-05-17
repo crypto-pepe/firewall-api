@@ -2,9 +2,9 @@ extern crate core;
 
 use std::io;
 
+use firewall_executor::ban_checker::redis::RedisBanChecker;
 use firewall_executor::config;
 use firewall_executor::redis::get_pool;
-use firewall_executor::redis::Service;
 use firewall_executor::server::Server;
 use pepe_log::info;
 
@@ -12,7 +12,7 @@ use pepe_log::info;
 async fn main() -> io::Result<()> {
     info!("start application");
 
-    let cfg = match config::Config::load(config::DEFAULT_CONFIG) {
+    let cfg = match config::Config::load() {
         Ok(a) => a,
         Err(e) => panic!("can't read config {:?}", e),
     };
@@ -24,7 +24,7 @@ async fn main() -> io::Result<()> {
         Err(e) => panic!("create redis pool {:?}", e),
     };
 
-    let redis_svc = match Service::new(redis_pool, cfg.redis.timeout_sec).await {
+    let redis_svc = match RedisBanChecker::new(redis_pool, cfg.redis.timeout_sec).await {
         Ok(r) => r,
         Err(e) => panic!("can't setup redis {:?}", e),
     };

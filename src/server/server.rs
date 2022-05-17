@@ -7,9 +7,9 @@ use pepe_log::error;
 use serde_json::json;
 use tokio::io;
 
+use crate::ban_checker::redis::RedisBanChecker;
 use crate::ban_checker::BanChecker;
 use crate::model::{target_to_key, BanTargetRequest};
-use crate::redis::Service;
 use crate::server::Config;
 
 pub struct Server {
@@ -17,8 +17,8 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new(cfg: &Config, bh: Service) -> Result<Server, io::Error> {
-        let bh = Data::from(Arc::new(bh));
+    pub fn new(cfg: &Config, bc: RedisBanChecker) -> Result<Server, io::Error> {
+        let bh = Data::from(Arc::new(bc));
 
         let srv =
             HttpServer::new(move || App::new().app_data(bh.clone()).configure(server_config()));
@@ -62,7 +62,10 @@ impl CheckBanResponse {
 }
 
 #[post("/api/check-ban")]
-async fn check_ban(ban_req: web::Json<BanTargetRequest>, checker: Data<Service>) -> impl Responder {
+async fn check_ban(
+    ban_req: web::Json<BanTargetRequest>,
+    checker: Data<RedisBanChecker>,
+) -> impl Responder {
     let target = match target_to_key(&ban_req.target) {
         Ok(t) => t,
         Err(e) => return e.into(),

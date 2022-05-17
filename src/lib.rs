@@ -1,4 +1,4 @@
-mod ban_checker;
+pub mod ban_checker;
 pub mod config;
 pub mod errors;
 pub mod http_error;

@@ -45,7 +45,7 @@ num-traits = "0.2.15"
 
 [[bin]]
 name = "api"
-path = "src/bin/api.rs"
+path = "src/main.rs"
 
 [lib]
 name = "firewall_executor"
