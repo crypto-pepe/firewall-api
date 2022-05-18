@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use actix_web::web::Data;
-use actix_web::{dev, error, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{dev, error, post, web, App, HttpResponse, HttpServer, Responder, ResponseError};
 use mime;
-use serde_json::json;
+use serde::Serialize;
 use tokio::io;
 use tracing_actix_web::TracingLogger;
 
@@ -47,21 +47,41 @@ fn server_config() -> Box<dyn Fn(&mut web::ServiceConfig)> {
     })
 }
 
+#[derive(Serialize)]
+#[serde(untagged)]
 enum CheckBanResponse {
-    Free,
+    Free(BanResponseFree),
+    Ban(BanResponseBan),
+    Error(BanResponseError),
+}
+
+#[derive(Serialize)]
+enum BanResponseError {
+    Error(String),
+}
+
+#[derive(Serialize)]
+#[serde(tag = "status", content = "ban_expires_at")]
+enum BanResponseBan {
+    #[serde(rename = "banned")]
     Ban(u64),
-    Error,
+}
+
+#[derive(Serialize)]
+#[serde(tag = "status")]
+#[serde(rename_all = "kebab-case")]
+enum BanResponseFree {
+    Free,
 }
 
 impl CheckBanResponse {
-    fn response(self) -> HttpResponse {
+    fn response(&self) -> HttpResponse {
         match self {
-            CheckBanResponse::Free => HttpResponse::Ok().json(json!({"status":"free"})),
-            CheckBanResponse::Ban(ttl) => {
-                HttpResponse::Ok().json(json!({"status":"banned", "ban_expires_at":ttl}))
-            }
-            CheckBanResponse::Error => HttpResponse::InternalServerError().finish(),
+            CheckBanResponse::Free(_) => HttpResponse::Ok(),
+            CheckBanResponse::Ban(_) => HttpResponse::Ok(),
+            CheckBanResponse::Error(_) => HttpResponse::InternalServerError(),
         }
+        .json(self)
     }
 }
 
@@ -71,16 +91,20 @@ async fn check_ban(
     ban_req: web::Json<BanTargetRequest>,
     checker: Data<RedisBanChecker>,
 ) -> impl Responder {
+    if let Err(e) = ban_req.verify() {
+        return e.error_response();
+    }
+
     let target = ban_req.target.to_string();
 
     match checker.ban_ttl(target).await {
         Ok(o) => match o {
-            None => CheckBanResponse::Free.response(),
-            Some(ttl) => CheckBanResponse::Ban(ttl).response(),
+            None => CheckBanResponse::Free(BanResponseFree::Free).response(),
+            Some(ttl) => CheckBanResponse::Ban(BanResponseBan::Ban(ttl)).response(),
         },
         Err(e) => {
             tracing::error!("{:?}", e);
-            CheckBanResponse::Error.response()
+            CheckBanResponse::Error(BanResponseError::Error(e.to_string())).response()
         }
     }
 }

@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, fmt::Display};
+use std::fmt::Display;
 
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
 use serde::Serialize;
@@ -7,19 +7,18 @@ use serde::Serialize;
 struct ErrorResponse {
     code: u16,
     reason: String,
-    details: Option<BTreeMap<String, String>>, // field name -> description,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    details: Option<String>, // field name -> description,
 }
 
 #[derive(Debug, PartialEq)]
 pub enum BanTargetConversionError {
-    FieldRequired(String),
+    FieldRequired,
 }
 
 impl Display for BanTargetConversionError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        return match self {
-            BanTargetConversionError::FieldRequired(field_name) => f.write_str(field_name),
-        };
+        f.write_str("at least on field required: 'ip', 'user-agent'")
     }
 }
 
@@ -35,18 +34,10 @@ impl ResponseError for BanTargetConversionError {
     }
 
     fn error_response(&self) -> HttpResponse {
-        let err_resp = match self {
-            BanTargetConversionError::FieldRequired(field_name) => {
-                let mut details = BTreeMap::new();
-                details.insert(field_name.to_string(), "This field is required".to_string());
-                ErrorResponse {
-                    code: 100,
-                    reason: "Provided request does not match the constraints".into(),
-                    details: Some(details),
-                }
-            }
-        };
-
-        HttpResponse::build(StatusCode::BAD_REQUEST).json(err_resp)
+        HttpResponse::build(StatusCode::BAD_REQUEST).json(ErrorResponse {
+            code: 100,
+            reason: "Provided request does not match the constraints".into(),
+            details: Some(self.to_string()),
+        })
     }
 }
