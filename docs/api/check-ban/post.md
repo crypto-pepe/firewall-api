@@ -75,7 +75,7 @@ type Response = {
 
 ```json
 {
-    "code": 100,
+    "code": 400,
     "reason": "Provided request does not match the constraints",
     "details": {
         "target": "This field is required"

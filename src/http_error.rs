@@ -35,7 +35,7 @@ impl ResponseError for BanTargetConversionError {
 
     fn error_response(&self) -> HttpResponse {
         HttpResponse::build(StatusCode::BAD_REQUEST).json(ErrorResponse {
-            code: 100,
+            code: 400,
             reason: "Provided request does not match the constraints".into(),
             details: Some(self.to_string()),
         })
