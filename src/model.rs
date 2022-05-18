@@ -2,30 +2,49 @@ use std::fmt::{Debug, Display, Formatter};
 
 use serde::{Deserialize, Serialize};
 
+use crate::http_error::BanTargetConversionError;
+
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "kebab-case")]
 pub struct BanTarget {
-    pub ip: String,
+    pub ip: Option<String>,
     pub user_agent: Option<String>,
 }
 
 impl Display for BanTarget {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        if self.user_agent.is_none() {
-            f.write_str(&*self.ip)
-        } else {
-            f.write_str(&*format!(
-                "{}_{}",
-                &*self.ip,
-                self.user_agent.as_ref().unwrap()
-            ))
+        if self.user_agent.is_none() && self.ip.is_none() {
+            return f.write_str("<none>");
         }
+        if self.user_agent.is_none() {
+            return f.write_str(&*format!("ip:{}", &*self.ip.as_ref().unwrap()));
+        }
+        if self.ip.is_none() {
+            return f.write_str(&*format!(
+                "user-agent:{}",
+                &*self.user_agent.as_ref().unwrap()
+            ));
+        }
+        f.write_str(&*format!(
+            "ip:{}_user-agent:{}",
+            &*self.ip.as_ref().unwrap(),
+            self.user_agent.as_ref().unwrap()
+        ))
     }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BanTargetRequest {
     pub target: BanTarget,
+}
+
+impl BanTargetRequest {
+    pub fn verify(&self) -> Result<(), BanTargetConversionError> {
+        if self.target.ip.is_none() && self.target.user_agent.is_none() {
+            return Err(BanTargetConversionError::FieldRequired);
+        }
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -41,10 +60,23 @@ mod tests {
     fn target_to_key_ip() {
         let tc = TestCase {
             input: BanTarget {
-                ip: "1.1.1.1".into(),
+                ip: Some("1.1.1.1".into()),
                 user_agent: None,
             },
-            want: "1.1.1.1".into(),
+            want: "ip:1.1.1.1".into(),
+        };
+
+        assert_eq!(tc.input.to_string(), tc.want);
+    }
+
+    #[test]
+    fn target_to_key_user_agent() {
+        let tc = TestCase {
+            input: BanTarget {
+                ip: None,
+                user_agent: Some("abc".into()),
+            },
+            want: "user-agent:abc".into(),
         };
 
         assert_eq!(tc.input.to_string(), tc.want);
@@ -54,10 +86,10 @@ mod tests {
     fn target_to_key_ip_and_user_agent() {
         let tc = TestCase {
             input: BanTarget {
-                ip: "1.1.1.1".into(),
+                ip: Some("1.1.1.1".into()),
                 user_agent: Some("abc".into()),
             },
-            want: "1.1.1.1_abc".into(),
+            want: "ip:1.1.1.1_user-agent:abc".into(),
         };
 
         assert_eq!(tc.input.to_string(), tc.want);
