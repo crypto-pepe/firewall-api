@@ -5,14 +5,14 @@ use serde::{Deserialize, Serialize};
 pub struct Config {
     host: String,
     port: u16,
-    user: Option<String>,
+    client_id: Option<String>,
     password: Option<String>,
     pub timeout_sec: u64,
 }
 
 impl Config {
     pub fn connection_string(&self) -> String {
-        let mut auth = self.user.clone().unwrap_or_else(|| "".to_string());
+        let mut auth = self.client_id.clone().unwrap_or_else(|| "".to_string());
         if auth.is_empty() {
             auth = self.password.clone().unwrap_or_else(|| "".to_string());
         } else {
@@ -38,7 +38,7 @@ mod tests {
         let cfg = Config {
             host: "localhost".to_string(),
             port: 6379,
-            user: None,
+            client_id: None,
             password: None,
             timeout_sec: 0,
         };
@@ -53,7 +53,7 @@ mod tests {
         let cfg = Config {
             host: "localhost".to_string(),
             port: 6379,
-            user: None,
+            client_id: None,
             password: Some("password".to_string()),
             timeout_sec: 0,
         };
@@ -68,7 +68,7 @@ mod tests {
         let cfg = Config {
             host: "localhost".to_string(),
             port: 6379,
-            user: Some("user".to_string()),
+            client_id: Some("user".to_string()),
             password: Some("password".to_string()),
             timeout_sec: 0,
         };
