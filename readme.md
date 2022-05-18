@@ -6,12 +6,14 @@ api
 
 ## ENVs
 
-| Name        | Required | Note                                                                                  |
-|-------------|----------|---------------------------------------------------------------------------------------|
-| RUST_LOG    | No       | Log level. https://docs.rs/env_logger/0.9.0/env_logger/#enabling-logging              |
-| CONFIG_PATH | No       | Path to the `yaml` formatted config file. If not stated, `./config.yaml` will be used |
+| Name        | Required | Note                                                                     |
+|-------------|----------|--------------------------------------------------------------------------|
+| RUST_LOG    | No       | Log level. https://docs.rs/env_logger/0.9.0/env_logger/#enabling-logging |
+| CONFIG_PATH | No       | Path to the `yaml` formatted config file.                                |
 
 ## Config
+
+**If `CONFIG_PATH` is not stated then `./config.yaml` will be used**
 
 | Name                      | Required | Note                          |
 |---------------------------|----------|-------------------------------|

@@ -9,7 +9,7 @@ use tracing_actix_web::TracingLogger;
 use crate::ban_checker::redis::RedisBanChecker;
 use crate::ban_checker::BanChecker;
 use crate::model::BanTargetRequest;
-use crate::server::{Config, response::*};
+use crate::server::{response::*, Config};
 
 pub struct Server {
     srv: dev::Server,
@@ -46,7 +46,6 @@ fn server_config() -> Box<dyn Fn(&mut web::ServiceConfig)> {
     })
 }
 
-
 #[tracing::instrument(skip(checker))]
 #[post("/api/check-ban")]
 async fn check_ban(
@@ -61,12 +60,12 @@ async fn check_ban(
 
     match checker.ban_ttl(target).await {
         Ok(o) => match o {
-            None => CheckBanResponse::Free(BanResponseFree::Free).response(),
-            Some(ttl) => CheckBanResponse::Ban(BanResponseBan::Ban(ttl)).response(),
+            None => response_free(),
+            Some(ttl) => response_ban(ttl),
         },
         Err(e) => {
             tracing::error!("{:?}", e);
-            CheckBanResponse::Error(BanResponseError::Error(e.to_string())).response()
+            response_error(e.to_string())
         }
     }
 }

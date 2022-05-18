@@ -2,40 +2,56 @@ use actix_web::HttpResponse;
 use serde::Serialize;
 
 #[derive(Serialize)]
-#[serde(untagged)]
-pub enum CheckBanResponse {
-    Free(BanResponseFree),
-    Ban(BanResponseBan),
-    Error(BanResponseError),
-}
-
-#[derive(Serialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum BanResponseError {
-    Error(String),
-}
-
-#[derive(Serialize)]
-#[serde(tag = "status", content = "ban_expires_at")]
-pub enum BanResponseBan {
-    #[serde(rename = "banned")]
-    Ban(u64),
-}
-
-#[derive(Serialize)]
-#[serde(tag = "status")]
-#[serde(rename_all = "kebab-case")]
-pub enum BanResponseFree {
+#[serde(rename_all = "lowercase")]
+enum BanStatus {
     Free,
+    Banned,
+}
+
+#[derive(Serialize)]
+struct CheckBanResponse {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<BanStatus>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ban_expires_at: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}
+
+pub fn response_free() -> HttpResponse {
+    CheckBanResponse {
+        status: Some(BanStatus::Free),
+        ban_expires_at: None,
+        error: None,
+    }
+    .response()
+}
+
+pub fn response_ban(ban_time: u64) -> HttpResponse {
+    CheckBanResponse {
+        status: Some(BanStatus::Banned),
+        ban_expires_at: Some(ban_time),
+        error: None,
+    }
+    .response()
+}
+
+pub fn response_error(error: String) -> HttpResponse {
+    CheckBanResponse {
+        status: None,
+        ban_expires_at: None,
+        error: Some(error),
+    }
+    .response()
 }
 
 impl CheckBanResponse {
     pub fn response(&self) -> HttpResponse {
-        match self {
-            CheckBanResponse::Free(_) => HttpResponse::Ok(),
-            CheckBanResponse::Ban(_) => HttpResponse::Ok(),
-            CheckBanResponse::Error(_) => HttpResponse::InternalServerError(),
+        if self.error.is_none() {
+            HttpResponse::Ok()
+        } else {
+            HttpResponse::InternalServerError()
         }
-            .json(self)
+        .json(self)
     }
 }
