@@ -3,14 +3,13 @@ use std::sync::Arc;
 use actix_web::web::Data;
 use actix_web::{dev, error, post, web, App, HttpResponse, HttpServer, Responder, ResponseError};
 use mime;
-use serde::Serialize;
 use tokio::io;
 use tracing_actix_web::TracingLogger;
 
 use crate::ban_checker::redis::RedisBanChecker;
 use crate::ban_checker::BanChecker;
 use crate::model::BanTargetRequest;
-use crate::server::Config;
+use crate::server::{Config, response::*};
 
 pub struct Server {
     srv: dev::Server,
@@ -47,43 +46,6 @@ fn server_config() -> Box<dyn Fn(&mut web::ServiceConfig)> {
     })
 }
 
-#[derive(Serialize)]
-#[serde(untagged)]
-enum CheckBanResponse {
-    Free(BanResponseFree),
-    Ban(BanResponseBan),
-    Error(BanResponseError),
-}
-
-#[derive(Serialize)]
-enum BanResponseError {
-    Error(String),
-}
-
-#[derive(Serialize)]
-#[serde(tag = "status", content = "ban_expires_at")]
-enum BanResponseBan {
-    #[serde(rename = "banned")]
-    Ban(u64),
-}
-
-#[derive(Serialize)]
-#[serde(tag = "status")]
-#[serde(rename_all = "kebab-case")]
-enum BanResponseFree {
-    Free,
-}
-
-impl CheckBanResponse {
-    fn response(&self) -> HttpResponse {
-        match self {
-            CheckBanResponse::Free(_) => HttpResponse::Ok(),
-            CheckBanResponse::Ban(_) => HttpResponse::Ok(),
-            CheckBanResponse::Error(_) => HttpResponse::InternalServerError(),
-        }
-        .json(self)
-    }
-}
 
 #[tracing::instrument(skip(checker))]
 #[post("/api/check-ban")]
