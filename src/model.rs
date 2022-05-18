@@ -1,4 +1,4 @@
-use std::fmt::{Debug, Display, Formatter};
+use std::fmt::{Debug, Display, Error, Formatter};
 
 use serde::{Deserialize, Serialize};
 
@@ -14,7 +14,7 @@ pub struct BanTarget {
 impl Display for BanTarget {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         if self.user_agent.is_none() && self.ip.is_none() {
-            return f.write_str("<none>");
+            return Err(Error);
         }
         if self.user_agent.is_none() {
             return f.write_str(&*format!("ip:{}", &*self.ip.as_ref().unwrap()));
