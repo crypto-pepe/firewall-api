@@ -11,25 +11,25 @@ pub struct BanTarget {
     pub user_agent: Option<String>,
 }
 
+const SEPARATOR: &str = "__";
+
 impl Display for BanTarget {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut vv: Vec<String> = Vec::new();
+
         if self.user_agent.is_none() && self.ip.is_none() {
             return Err(Error);
         }
-        if self.user_agent.is_none() {
-            return f.write_str(&*format!("ip:{}", &*self.ip.as_ref().unwrap()));
+        if self.ip.is_some() {
+            vv.push(format!("ip:{}", &*self.ip.as_ref().unwrap()));
         }
-        if self.ip.is_none() {
-            return f.write_str(&*format!(
+        if self.user_agent.is_some() {
+            vv.push(format!(
                 "user-agent:{}",
                 &*self.user_agent.as_ref().unwrap()
             ));
         }
-        f.write_str(&*format!(
-            "ip:{}_user-agent:{}",
-            &*self.ip.as_ref().unwrap(),
-            self.user_agent.as_ref().unwrap()
-        ))
+        f.write_str(&*vv.join(SEPARATOR))
     }
 }
 
@@ -89,7 +89,7 @@ mod tests {
                 ip: Some("1.1.1.1".into()),
                 user_agent: Some("abc".into()),
             },
-            want: "ip:1.1.1.1_user-agent:abc".into(),
+            want: "ip:1.1.1.1__user-agent:abc".into(),
         };
 
         assert_eq!(tc.input.to_string(), tc.want);
