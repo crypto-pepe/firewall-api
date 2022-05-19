@@ -11,6 +11,12 @@ use crate::ban_checker::BanChecker;
 use crate::errors;
 use crate::errors::CheckBanError;
 
+pub struct RedisBanChecker {
+    pub pool: Pool<RedisConnectionManager>,
+    pub timeout: time::Duration,
+    pub namespace: String,
+}
+
 #[async_trait]
 impl BanChecker for RedisBanChecker {
     #[tracing::instrument(skip(self))]
@@ -25,23 +31,18 @@ impl BanChecker for RedisBanChecker {
     }
 }
 
-pub struct RedisBanChecker {
-    pub pool: Pool<RedisConnectionManager>,
-    pub timeout: time::Duration,
-}
-
 impl RedisBanChecker {
     pub async fn new(
         pool: Pool<RedisConnectionManager>,
-        timeout_secs: u64,
+        timeout_secs: u64, namespace: String,
     ) -> Result<Self, errors::Redis> {
         let timeout = time::Duration::from_secs(timeout_secs);
-        Ok(RedisBanChecker { pool, timeout })
+        Ok(RedisBanChecker { pool, timeout, namespace })
     }
 
     #[tracing::instrument(skip(self))]
     pub async fn get_ttl(&self, key: String) -> Result<Option<u64>, errors::Redis> {
-        tokio::time::timeout(self.timeout, self._get_ttl(key))
+        tokio::time::timeout(self.timeout, self._get_ttl(format!("{}{}",self.namespace, key)))
             .await
             .map_err(|_| errors::Redis::Timeout)?
     }

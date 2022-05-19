@@ -1,4 +1,4 @@
-use config::ConfigError;
+use pepe_config::{ConfigError, FileFormat};
 use serde::{Deserialize, Serialize};
 
 use crate::server;
@@ -15,6 +15,6 @@ pub struct Config {
 
 impl Config {
     pub fn load() -> Result<Self, ConfigError> {
-        pepe_config::load(DEFAULT_CONFIG, config::FileFormat::Yaml)
+        pepe_config::load(DEFAULT_CONFIG, FileFormat::Yaml)
     }
 }
