@@ -34,17 +34,25 @@ impl BanChecker for RedisBanChecker {
 impl RedisBanChecker {
     pub async fn new(
         pool: Pool<RedisConnectionManager>,
-        timeout_secs: u64, namespace: String,
+        timeout_secs: u64,
+        namespace: String,
     ) -> Result<Self, errors::Redis> {
         let timeout = time::Duration::from_secs(timeout_secs);
-        Ok(RedisBanChecker { pool, timeout, namespace })
+        Ok(RedisBanChecker {
+            pool,
+            timeout,
+            namespace,
+        })
     }
 
     #[tracing::instrument(skip(self))]
     pub async fn get_ttl(&self, key: String) -> Result<Option<u64>, errors::Redis> {
-        tokio::time::timeout(self.timeout, self._get_ttl(format!("{}{}",self.namespace, key)))
-            .await
-            .map_err(|_| errors::Redis::Timeout)?
+        tokio::time::timeout(
+            self.timeout,
+            self._get_ttl(format!("{}{}", self.namespace, key)),
+        )
+        .await
+        .map_err(|_| errors::Redis::Timeout)?
     }
 
     #[tracing::instrument(skip(self))]
@@ -65,7 +73,10 @@ impl RedisBanChecker {
         match ttl {
             -2 => Err(errors::Redis::KeyNotExist(key)),
             -1 => Err(errors::Redis::NoTTL(key)),
-            _ => Ok(Some(ttl.to_u64().unwrap())),
+            _ => match ttl.to_u64() {
+                Some(ttl) => Ok(Some(ttl)),
+                None => Err(errors::Redis::BadTTL),
+            },
         }
     }
 }

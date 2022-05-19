@@ -1,14 +1,10 @@
-extern crate core;
-
-use std::io;
-
-use firewall_executor::{config, telemetry};
 use firewall_executor::ban_checker::redis::RedisBanChecker;
 use firewall_executor::redis::get_pool;
 use firewall_executor::server::Server;
+use firewall_executor::{config, telemetry};
 
 #[tokio::main]
-async fn main() -> io::Result<()> {
+async fn main() -> anyhow::Result<()> {
     tracing::info!("start application");
 
     let cfg = match config::Config::load() {
@@ -26,7 +22,13 @@ async fn main() -> io::Result<()> {
         Err(e) => panic!("create redis pool {:?}", e),
     };
 
-    let ban_checker = match RedisBanChecker::new(redis_pool, cfg.redis.timeout_sec, cfg.redis.namespace.clone()).await {
+    let ban_checker = match RedisBanChecker::new(
+        redis_pool,
+        cfg.redis.timeout_sec,
+        cfg.redis.namespace.clone(),
+    )
+    .await
+    {
         Ok(r) => r,
         Err(e) => panic!("can't setup redis {:?}", e),
     };

@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use actix_web::web::Data;
 use actix_web::{dev, error, post, web, App, HttpResponse, HttpServer, Responder, ResponseError};
+use anyhow::anyhow;
 use mime;
 use tokio::io;
 use tracing_actix_web::TracingLogger;
@@ -30,8 +31,8 @@ impl Server {
         Ok(Server { srv })
     }
 
-    pub async fn run(self) -> io::Result<()> {
-        self.srv.await
+    pub async fn run(self) -> anyhow::Result<()> {
+        self.srv.await.map_err(|e| anyhow!(e))
     }
 }
 

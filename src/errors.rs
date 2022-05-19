@@ -17,6 +17,9 @@ pub enum Redis {
     #[error("key '{0}' has not ttl")]
     NoTTL(String),
 
+    #[error("bad ttl")]
+    BadTTL,
+
     #[error("execute '{1}': {0:?}")]
     CMD(Arc<RedisError>, String),
 
