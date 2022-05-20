@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::time::UNIX_EPOCH;
 
 use actix_web::web::Data;
 use actix_web::{dev, error, post, web, App, HttpResponse, HttpServer, Responder, ResponseError};
@@ -62,7 +63,16 @@ async fn check_ban(
     match checker.ban_ttl(target).await {
         Ok(o) => match o {
             None => response_free(),
-            Some(ttl) => response_ban(ttl),
+            Some(ttl) => {
+                let expires_at = match std::time::SystemTime::now().duration_since(UNIX_EPOCH) {
+                    Ok(s) => s.as_secs() + ttl,
+                    Err(e) => {
+                        tracing::error!("{:?}", e);
+                        return response_error(e.to_string());
+                    }
+                };
+                response_ban(expires_at)
+            }
         },
         Err(e) => {
             tracing::error!("{:?}", e);

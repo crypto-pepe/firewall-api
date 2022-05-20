@@ -27,10 +27,10 @@ pub fn response_free() -> HttpResponse {
     .response()
 }
 
-pub fn response_ban(ban_time: u64) -> HttpResponse {
+pub fn response_ban(expiration_time: u64) -> HttpResponse {
     CheckBanResponse {
         status: Some(BanStatus::Banned),
-        ban_expires_at: Some(ban_time),
+        ban_expires_at: Some(expiration_time),
         error: None,
     }
     .response()
