@@ -24,10 +24,10 @@ async fn main() -> anyhow::Result<()> {
 
     let ban_checker = match RedisBanChecker::new(
         redis_pool,
-        cfg.redis.timeout_sec,
-        cfg.redis.namespace.clone(),
+        cfg.redis_query_timeout_secs,
+        cfg.namespace.clone(),
     )
-    .await
+        .await
     {
         Ok(r) => r,
         Err(e) => panic!("can't setup redis {:?}", e),
