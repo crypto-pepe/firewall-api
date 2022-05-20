@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::time::UNIX_EPOCH;
 
 use actix_web::web::Data;
-use actix_web::{dev, error, post, web, App, HttpResponse, HttpServer, Responder, ResponseError};
+use actix_web::{dev, error, post, web, App, HttpResponse, HttpServer, ResponseError};
 use anyhow::anyhow;
 use mime;
 use tokio::io;
@@ -10,6 +10,7 @@ use tracing_actix_web::TracingLogger;
 
 use crate::ban_checker::redis::RedisBanChecker;
 use crate::ban_checker::BanChecker;
+use crate::http_error;
 use crate::model::BanTargetRequest;
 use crate::server::{response::*, Config};
 
@@ -53,30 +54,41 @@ fn server_config() -> Box<dyn Fn(&mut web::ServiceConfig)> {
 async fn check_ban(
     ban_req: web::Json<BanTargetRequest>,
     checker: Data<RedisBanChecker>,
-) -> impl Responder {
+) -> Result<HttpResponse, impl ResponseError> {
     if let Err(e) = ban_req.verify() {
-        return e.error_response();
+        return Err(e.into());
     }
 
     let target = ban_req.target.to_string();
 
     match checker.ban_ttl(target).await {
         Ok(o) => match o {
-            None => response_free(),
+            None => Ok(BanStatus::Free.into()),
             Some(ttl) => {
                 let expires_at = match std::time::SystemTime::now().duration_since(UNIX_EPOCH) {
                     Ok(s) => s.as_secs() + ttl,
                     Err(e) => {
                         tracing::error!("{:?}", e);
-                        return response_error(e.to_string());
+                        return Err(http_error::ErrorResponse {
+                            code: 500,
+                            reason: e.to_string(),
+                            details: None,
+                        });
                     }
                 };
-                response_ban(expires_at)
+                Ok(BanStatus::Banned(BannedBanStatus {
+                    ban_expires_at: expires_at,
+                })
+                .into())
             }
         },
         Err(e) => {
             tracing::error!("{:?}", e);
-            response_error(e.to_string())
+            Err(http_error::ErrorResponse {
+                code: 500,
+                reason: e.to_string(),
+                details: None,
+            })
         }
     }
 }
