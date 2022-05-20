@@ -21,10 +21,10 @@ impl Display for BanTarget {
             return Err(Error);
         }
         if let Some(ip) = self.ip.as_ref() {
-            vv.push(format!("ip:{}", ip.to_string()));
+            vv.push(format!("ip:{}", ip));
         }
         if let Some(ua) = self.user_agent.as_ref() {
-            vv.push(format!("user-agent:{}", ua.to_string()));
+            vv.push(format!("user-agent:{}", ua));
         }
 
         f.write_str(&*vv.join(SEPARATOR))

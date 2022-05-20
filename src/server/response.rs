@@ -3,9 +3,14 @@ use serde::Serialize;
 
 #[derive(Serialize)]
 #[serde(rename_all = "lowercase")]
+#[serde(tag = "status")]
 enum BanStatus {
     Free,
-    Banned,
+    Banned(BannedBanStatus),
+}
+
+pub struct BannedBanStatus {
+    pub ban_expires_at: u64,
 }
 
 #[derive(Serialize)]
@@ -24,16 +29,16 @@ pub fn response_free() -> HttpResponse {
         ban_expires_at: None,
         error: None,
     }
-    .response()
+        .response()
 }
 
 pub fn response_ban(expiration_time: u64) -> HttpResponse {
     CheckBanResponse {
-        status: Some(BanStatus::Banned),
+        status: Some(BanStatus::Banned(BannedBanStatus { ban_expires_at: expiration_time })),
         ban_expires_at: Some(expiration_time),
         error: None,
     }
-    .response()
+        .response()
 }
 
 pub fn response_error(error: String) -> HttpResponse {
@@ -42,7 +47,7 @@ pub fn response_error(error: String) -> HttpResponse {
         ban_expires_at: None,
         error: Some(error),
     }
-    .response()
+        .response()
 }
 
 impl CheckBanResponse {
@@ -52,6 +57,6 @@ impl CheckBanResponse {
         } else {
             HttpResponse::InternalServerError()
         }
-        .json(self)
+            .json(self)
     }
 }
