@@ -10,9 +10,9 @@ Checks whether target is banned.
 
 **Content-Type**: `application/json`
 
-| Field    | Type                                  | Is required | Constraints | Note       |
-|----------|---------------------------------------|-------------|-------------|------------|
-| `target` | `{ ip: string?, user-agent:string? }` |             | Yes         | Ban target |
+| Field    | Type                                  | Required | Note       |
+|----------|---------------------------------------|----------|------------|
+| `target` | `{ ip: string?, user-agent:string? }` | Yes      | Ban target |
 
 **Request examples**
 
