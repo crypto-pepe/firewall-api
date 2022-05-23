@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter};
 
+use crate::api::routes::check::BanTargetConversionError;
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
 use serde::Serialize;
 
@@ -11,11 +12,6 @@ pub struct ErrorResponse {
     pub(crate) details: Option<String>, // field name -> description,
 }
 
-#[derive(Debug, PartialEq)]
-pub enum BanTargetConversionError {
-    FieldRequired,
-}
-
 impl Into<ErrorResponse> for BanTargetConversionError {
     fn into(self) -> ErrorResponse {
         ErrorResponse {
@@ -23,12 +19,6 @@ impl Into<ErrorResponse> for BanTargetConversionError {
             reason: "Provided request does not match the constraints".into(),
             details: Some(self.to_string()),
         }
-    }
-}
-
-impl Display for BanTargetConversionError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("at least on field required: 'ip', 'user-agent'")
     }
 }
 

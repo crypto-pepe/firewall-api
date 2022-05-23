@@ -2,8 +2,6 @@ use std::fmt::{Debug, Display, Error, Formatter};
 
 use serde::{Deserialize, Serialize};
 
-use crate::http_error::BanTargetConversionError;
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub struct BanTarget {
@@ -28,20 +26,6 @@ impl Display for BanTarget {
         }
 
         f.write_str(&*vv.join(SEPARATOR))
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct BanTargetRequest {
-    pub target: BanTarget,
-}
-
-impl BanTargetRequest {
-    pub fn verify(&self) -> Result<(), BanTargetConversionError> {
-        if self.target.ip.is_none() && self.target.user_agent.is_none() {
-            return Err(BanTargetConversionError::FieldRequired);
-        }
-        Ok(())
     }
 }
 
