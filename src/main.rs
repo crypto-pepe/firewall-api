@@ -27,7 +27,7 @@ async fn main() -> anyhow::Result<()> {
         cfg.redis_query_timeout_secs,
         cfg.namespace.clone(),
     )
-        .await
+    .await
     {
         Ok(r) => r,
         Err(e) => panic!("can't setup redis {:?}", e),
