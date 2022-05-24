@@ -1,7 +1,7 @@
-use firewall_executor::api::Server;
-use firewall_executor::ban_checker::redis::RedisBanChecker;
-use firewall_executor::redis::get_pool;
-use firewall_executor::{config, telemetry};
+use firewall_api::api::Server;
+use firewall_api::ban_checker::redis::RedisBanChecker;
+use firewall_api::redis::get_pool;
+use firewall_api::{config, telemetry};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

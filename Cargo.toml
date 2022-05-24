@@ -1,5 +1,5 @@
 [package]
-name = "firewall-executor"
+name = "firewall-api"
 version = "0.1.0"
 edition = "2021"
 
@@ -45,5 +45,5 @@ name = "api"
 path = "src/main.rs"
 
 [lib]
-name = "firewall_executor"
+name = "firewall_api"
 path = "src/lib.rs"

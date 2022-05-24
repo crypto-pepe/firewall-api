@@ -562,7 +562,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4d3d6188b8804df28032815ea256b6955c9625c24da7525f387a7af02fbb8f01"
 
 [[package]]
-name = "firewall-executor"
+name = "firewall-api"
 version = "0.1.0"
 dependencies = [
  "actix-web",
