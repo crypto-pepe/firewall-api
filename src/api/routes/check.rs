@@ -1,14 +1,13 @@
 use std::fmt::Display;
 
-use actix_web::{HttpResponse, post, ResponseError, web};
 use actix_web::web::Data;
+use actix_web::{post, web, HttpResponse, ResponseError};
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::api::http_error::ErrorResponse;
 use crate::api::response::*;
 use crate::ban_checker::BanChecker;
-use crate::ban_checker::redis::RedisBanChecker;
 use crate::model::BanTarget;
 
 #[derive(Debug, PartialEq)]
@@ -40,7 +39,7 @@ impl BanTargetRequest {
 #[post("/api/check-ban")]
 pub async fn check_ban(
     ban_req: web::Json<BanTargetRequest>,
-    checker: Data<RedisBanChecker>,
+    checker: Data<Box<dyn BanChecker + Sync + Send>>,
 ) -> Result<HttpResponse, impl ResponseError> {
     if let Err(e) = ban_req.verify() {
         return Err(e.into());
@@ -55,7 +54,8 @@ pub async fn check_ban(
                 let expires_at = Utc::now().timestamp() as u64 + ttl;
                 Ok(BanStatus::Banned(BannedBanStatus {
                     ban_expires_at: expires_at,
-                }).into())
+                })
+                .into())
             }
         },
         Err(e) => {

@@ -8,14 +8,14 @@ use tokio::io;
 use tracing_actix_web::TracingLogger;
 
 use crate::api::{routes, Config};
-use crate::ban_checker::redis::RedisBanChecker;
+use crate::ban_checker::BanChecker;
 
 pub struct Server {
     srv: dev::Server,
 }
 
 impl Server {
-    pub fn new(cfg: &Config, bc: RedisBanChecker) -> Result<Server, io::Error> {
+    pub fn new(cfg: &Config, bc: Box<dyn BanChecker + Sync + Send>) -> Result<Server, io::Error> {
         let bh = Data::from(Arc::new(bc));
 
         let srv = HttpServer::new(move || {

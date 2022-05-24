@@ -33,6 +33,6 @@ async fn main() -> anyhow::Result<()> {
         Err(e) => panic!("can't setup redis {:?}", e),
     };
 
-    let srv = Server::new(&cfg.server, ban_checker)?;
+    let srv = Server::new(&cfg.server, Box::new(ban_checker))?;
     srv.run().await
 }
