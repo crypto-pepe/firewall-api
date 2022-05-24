@@ -1,14 +1,14 @@
 use std::fmt::Display;
-use std::time::UNIX_EPOCH;
 
+use actix_web::{HttpResponse, post, ResponseError, web};
 use actix_web::web::Data;
-use actix_web::{post, web, HttpResponse, ResponseError};
+use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::api::http_error::ErrorResponse;
 use crate::api::response::*;
-use crate::ban_checker::redis::RedisBanChecker;
 use crate::ban_checker::BanChecker;
+use crate::ban_checker::redis::RedisBanChecker;
 use crate::model::BanTarget;
 
 #[derive(Debug, PartialEq)]
@@ -52,21 +52,10 @@ pub async fn check_ban(
         Ok(o) => match o {
             None => Ok(BanStatus::Free.into()),
             Some(ttl) => {
-                let expires_at = match std::time::SystemTime::now().duration_since(UNIX_EPOCH) {
-                    Ok(s) => s.as_secs() + ttl,
-                    Err(e) => {
-                        tracing::error!("{:?}", e);
-                        return Err(ErrorResponse {
-                            code: 500,
-                            reason: e.to_string(),
-                            details: None,
-                        });
-                    }
-                };
+                let expires_at = Utc::now().timestamp() as u64 + ttl;
                 Ok(BanStatus::Banned(BannedBanStatus {
                     ban_expires_at: expires_at,
-                })
-                .into())
+                }).into())
             }
         },
         Err(e) => {
