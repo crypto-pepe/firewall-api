@@ -18,7 +18,7 @@ pub enum BanTargetConversionError {
 
 impl Display for BanTargetConversionError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("at least on field required: 'ip', 'user-agent'")
+        f.write_str("at least on field required: 'ip', 'user_agent'")
     }
 }
 

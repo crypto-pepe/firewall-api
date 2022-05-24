@@ -3,7 +3,6 @@ use std::fmt::{Debug, Display, Error, Formatter};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
 pub struct BanTarget {
     pub ip: Option<String>,
     pub user_agent: Option<String>,
@@ -22,7 +21,7 @@ impl Display for BanTarget {
             vv.push(format!("ip:{}", ip));
         }
         if let Some(ua) = self.user_agent.as_ref() {
-            vv.push(format!("user-agent:{}", ua));
+            vv.push(format!("user_agent:{}", ua));
         }
 
         f.write_str(&*vv.join(SEPARATOR))
@@ -58,7 +57,7 @@ mod tests {
                 ip: None,
                 user_agent: Some("abc".into()),
             },
-            want: "user-agent:abc".into(),
+            want: "user_agent:abc".into(),
         };
 
         assert_eq!(tc.input.to_string(), tc.want);
@@ -71,7 +70,7 @@ mod tests {
                 ip: Some("1.1.1.1".into()),
                 user_agent: Some("abc".into()),
             },
-            want: "ip:1.1.1.1__user-agent:abc".into(),
+            want: "ip:1.1.1.1__user_agent:abc".into(),
         };
 
         assert_eq!(tc.input.to_string(), tc.want);

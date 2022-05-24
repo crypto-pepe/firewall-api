@@ -12,7 +12,7 @@ Checks whether target is banned.
 
 | Field    | Type                                  | Required | Note       |
 |----------|---------------------------------------|----------|------------|
-| `target` | `{ ip: string?, user-agent:string? }` | Yes      | Ban target |
+| `target` | `{ ip: string?, user_agent:string? }` | Yes      | Ban target |
 
 **Request examples**
 
@@ -20,7 +20,7 @@ Checks whether target is banned.
 {
     "target": {
         "ip": "11.12.13.14",
-        "user-agent": "curl user-agent"
+        "user_agent": "curl user-agent"
     }
 }
 ```
