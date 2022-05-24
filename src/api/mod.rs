@@ -1,5 +1,5 @@
-pub use self::config::Config;
-pub use self::server::Server;
+pub use config::Config;
+pub use server::Server;
 
 pub mod config;
 #[allow(clippy::from_over_into)]

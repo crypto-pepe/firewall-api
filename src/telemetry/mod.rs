@@ -7,7 +7,7 @@ use tracing_subscriber::prelude::__tracing_subscriber_SubscriberExt;
 use tracing_subscriber::{EnvFilter, Registry};
 
 pub mod config;
-pub use self::config::Config;
+pub use config::Config;
 
 pub fn get_subscriber(cfg: &Config) -> Box<dyn Subscriber + Send + Sync> {
     let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
