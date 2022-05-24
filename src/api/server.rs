@@ -16,11 +16,11 @@ pub struct Server {
 
 impl Server {
     pub fn new(cfg: &Config, bc: Box<dyn BanChecker + Sync + Send>) -> Result<Server, io::Error> {
-        let bh = Data::from(Arc::new(bc));
+        let bc = Data::from(Arc::new(bc));
 
         let srv = HttpServer::new(move || {
             App::new()
-                .app_data(bh.clone())
+                .app_data(bc.clone())
                 .configure(server_config())
                 .wrap(TracingLogger::default())
         });
