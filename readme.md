@@ -22,7 +22,7 @@ api
 | redis.client_id           | No       | Redis client id                                                                          |
 | redis.password            | No       | Redis password                                                                           |
 | redis_query_timeout_secs  | Yes      | Redis query timeout (seconds)                                                            |
-| namespace                 | True     | Prefix, that will be added to all keys to receive (must be same as in firewall-executor) |
+| redis_keys_prefix         | Yes      | Prefix, that will be added to all keys to receive (must be same as in firewall-executor) |
 | server.host               | Yes      | Firewall-api service host                                                                |
 | server.port               | Yes      | Firewall-api service port                                                                |
 | telemetry.svc_name        | Yes      | Service name for tracing                                                                 |
