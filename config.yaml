@@ -7,4 +7,4 @@ server:
 redis_keys_prefix: "banned::"
 telemetry:
   svc_name: "firewall-api"
-redis_query_timeout_secs: 2
+redis_query_timeout: 2s

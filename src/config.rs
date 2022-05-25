@@ -1,5 +1,6 @@
 use pepe_config::{ConfigError, FileFormat};
 use serde::{Deserialize, Serialize};
+use std::time::Duration;
 
 use crate::api;
 use crate::telemetry;
@@ -12,12 +13,12 @@ pub struct Config {
     pub server: api::Config,
     pub telemetry: telemetry::Config,
     pub redis_keys_prefix: String,
-    #[serde(default = "default_redis_query_timeout_secs")]
-    pub redis_query_timeout_secs: u64,
+    #[serde(default = "default_redis_query_timeout")]
+    pub redis_query_timeout: duration_string::DurationString,
 }
 
-fn default_redis_query_timeout_secs() -> u64 {
-    5
+fn default_redis_query_timeout() -> duration_string::DurationString {
+    duration_string::DurationString::new(Duration::from_secs(5))
 }
 
 impl Config {

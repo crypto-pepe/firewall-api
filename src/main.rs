@@ -2,6 +2,7 @@ use firewall_api::api::Server;
 use firewall_api::ban_checker::redis::RedisBanChecker;
 use firewall_api::redis::get_pool;
 use firewall_api::{config, telemetry};
+use std::time::Duration;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -22,9 +23,10 @@ async fn main() -> anyhow::Result<()> {
         Err(e) => panic!("create redis pool {:?}", e),
     };
 
+    let dur: Duration = cfg.redis_query_timeout.into();
     let ban_checker = match RedisBanChecker::new(
         redis_pool,
-        cfg.redis_query_timeout_secs,
+        dur.as_secs(),
         cfg.redis_keys_prefix.clone(),
     )
     .await
