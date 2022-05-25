@@ -45,9 +45,5 @@ opentelemetry-jaeger = { version = "0.16.0", features = ["rt-tokio"] }
 tracing-opentelemetry = "0.17.2"
 
 [[bin]]
-name = "api"
+name = "service"
 path = "src/main.rs"
-
-[lib]
-name = "firewall_api"
-path = "src/lib.rs"
