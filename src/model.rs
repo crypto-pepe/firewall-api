@@ -59,7 +59,7 @@ mod tests {
                 ip: None,
                 user_agent: Some("abc".into()),
             },
-            want: "user_agent:abc".into(),
+            want: "user-agent:abc".into(),
         };
 
         assert_eq!(tc.input.to_string(), tc.want);
@@ -72,7 +72,7 @@ mod tests {
                 ip: Some("1.1.1.1".into()),
                 user_agent: Some("abc".into()),
             },
-            want: "ip:1.1.1.1__user_agent:abc".into(),
+            want: "ip:1.1.1.1__user-agent:abc".into(),
         };
 
         assert_eq!(tc.input.to_string(), tc.want);
