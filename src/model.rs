@@ -17,13 +17,15 @@ impl Display for BanTarget {
         if self.user_agent.is_none() && self.ip.is_none() {
             return Err(Error);
         }
-        if let Some(ip) = self.ip.as_ref() {
-            vv.push(format!("ip:{}", ip));
+        if self.ip.is_some() {
+            vv.push(format!("ip:{}", &*self.ip.as_ref().unwrap()));
         }
-        if let Some(ua) = self.user_agent.as_ref() {
-            vv.push(format!("user_agent:{}", ua));
+        if self.user_agent.is_some() {
+            vv.push(format!(
+                "user-agent:{}",
+                &*self.user_agent.as_ref().unwrap()
+            ));
         }
-
         f.write_str(&*vv.join(SEPARATOR))
     }
 }
