@@ -12,21 +12,21 @@ const SEPARATOR: &str = "__";
 
 impl Display for BanTarget {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let mut vv: Vec<String> = Vec::new();
+        let mut ss = vec![];
 
         if self.user_agent.is_none() && self.ip.is_none() {
             return Err(Error);
         }
-        if self.ip.is_some() {
-            vv.push(format!("ip:{}", &*self.ip.as_ref().unwrap()));
+
+        if let Some(ip) = &self.ip {
+            ss.push(format!("ip:{}", ip));
         }
-        if self.user_agent.is_some() {
-            vv.push(format!(
-                "user-agent:{}",
-                &*self.user_agent.as_ref().unwrap()
-            ));
+
+        if let Some(user_agent) = &self.user_agent {
+            ss.push(format!("user_agent:{}", user_agent));
         }
-        f.write_str(&*vv.join(SEPARATOR))
+
+        f.write_str(&ss.join(SEPARATOR))
     }
 }
 
@@ -59,7 +59,7 @@ mod tests {
                 ip: None,
                 user_agent: Some("abc".into()),
             },
-            want: "user-agent:abc".into(),
+            want: "user_agent:abc".into(),
         };
 
         assert_eq!(tc.input.to_string(), tc.want);
@@ -72,7 +72,7 @@ mod tests {
                 ip: Some("1.1.1.1".into()),
                 user_agent: Some("abc".into()),
             },
-            want: "ip:1.1.1.1__user-agent:abc".into(),
+            want: "ip:1.1.1.1__user_agent:abc".into(),
         };
 
         assert_eq!(tc.input.to_string(), tc.want);
