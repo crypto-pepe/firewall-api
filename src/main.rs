@@ -1,7 +1,14 @@
-use firewall_api::api::Server;
-use firewall_api::ban_checker::redis::RedisBanChecker;
-use firewall_api::redis::get_pool;
-use firewall_api::{config, telemetry};
+mod api;
+mod ban_checker;
+mod config;
+mod errors;
+mod model;
+mod redis;
+mod telemetry;
+
+use crate::redis::get_pool;
+use api::Server;
+use ban_checker::redis::RedisBanChecker;
 use std::time::Duration;
 
 #[tokio::main]
