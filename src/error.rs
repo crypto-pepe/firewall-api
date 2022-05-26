@@ -21,7 +21,7 @@ pub enum Redis {
     BadTTL,
 
     #[error("execute '{1}': {0:?}")]
-    CMD(Arc<RedisError>, String),
+    Cmd(Arc<RedisError>, String),
 
     #[error("get connection: {0:?}")]
     GetConnection(Arc<RunError<RedisError>>),
@@ -34,4 +34,7 @@ pub enum Redis {
 
     #[error("timeout")]
     Timeout,
+
+    #[error("internal")]
+    Internal,
 }

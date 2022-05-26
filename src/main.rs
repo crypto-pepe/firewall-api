@@ -1,7 +1,7 @@
 mod api;
 mod ban_checker;
 mod config;
-mod errors;
+mod error;
 mod model;
 mod redis;
 mod telemetry;
@@ -9,7 +9,7 @@ mod telemetry;
 use crate::redis::get_pool;
 use api::Server;
 use ban_checker::redis::RedisBanChecker;
-use std::time::Duration;
+use chrono::Duration;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -30,10 +30,10 @@ async fn main() -> anyhow::Result<()> {
         Err(e) => panic!("create redis pool {:?}", e),
     };
 
-    let dur: Duration = cfg.redis_query_timeout.into();
+    let dur: std::time::Duration = cfg.redis_query_timeout.into();
     let ban_checker = match RedisBanChecker::new(
         redis_pool,
-        dur.as_secs(),
+        Duration::from_std(dur).expect("bad timeout"),
         cfg.redis_keys_prefix.clone(),
     )
     .await

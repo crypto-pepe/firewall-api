@@ -15,18 +15,18 @@ api
 
 **If `CONFIG_PATH` is not stated then `./config.yaml` will be used**
 
-| Name                      | Required | Note                                                                                     |
-|---------------------------|----------|------------------------------------------------------------------------------------------|
-| redis.host                | Yes      | Redis service host                                                                       |
-| redis.port                | Yes      | Redis service port                                                                       |
-| redis.client_id           | No       | Redis client id                                                                          |
-| redis.password            | No       | Redis password                                                                           |
-| redis_query_timeout       | No       | Redis query timeout. Duration string                                                     |
-| redis_keys_prefix         | Yes      | Prefix, that will be added to all keys to receive (must be same as in firewall-executor) |
-| server.host               | Yes      | Firewall-api service host                                                                |
-| server.port               | Yes      | Firewall-api service port                                                                |
-| telemetry.svc_name        | Yes      | Service name for tracing                                                                 |
-| telemetry.jaeger_endpoint | No       | Jaeger endpoint                                                                          |
+| Name                      | Required | Default | Note                                                                                     |
+|---------------------------|----------|---------|------------------------------------------------------------------------------------------|
+| redis.host                | Yes      |         | Redis service host                                                                       |
+| redis.port                | Yes      |         | Redis service port                                                                       |
+| redis.client_id           | No       |         | Redis client id                                                                          |
+| redis.password            | No       |         | Redis password                                                                           |
+| redis_query_timeout       | No       | 5s      | Redis query timeout. Duration string                                                     |
+| redis_keys_prefix         | Yes      |         | Prefix, that will be added to all keys to receive (must be same as in firewall-executor) |
+| server.host               | Yes      |         | Firewall-api service host                                                                |
+| server.port               | Yes      |         | Firewall-api service port                                                                |
+| telemetry.svc_name        | Yes      |         | Service name for tracing                                                                 |
+| telemetry.jaeger_endpoint | No       |         | Jaeger endpoint                                                                          |
 
 ___
 
