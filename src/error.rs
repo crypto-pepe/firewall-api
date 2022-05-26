@@ -34,7 +34,4 @@ pub enum Redis {
 
     #[error("timeout")]
     Timeout,
-
-    #[error("internal")]
-    Internal,
 }

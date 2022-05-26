@@ -9,7 +9,6 @@ mod telemetry;
 use crate::redis::get_pool;
 use api::Server;
 use ban_checker::redis::RedisBanChecker;
-use chrono::Duration;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -33,7 +32,7 @@ async fn main() -> anyhow::Result<()> {
     let dur: std::time::Duration = cfg.redis_query_timeout.into();
     let ban_checker = match RedisBanChecker::new(
         redis_pool,
-        Duration::from_std(dur).expect("bad timeout"),
+        dur,
         cfg.redis_keys_prefix.clone(),
     )
     .await

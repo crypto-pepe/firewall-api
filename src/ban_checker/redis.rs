@@ -3,7 +3,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
-use chrono::Duration;
+use std::time::Duration;
 use num_traits::ToPrimitive;
 use redis::AsyncCommands;
 
@@ -46,8 +46,7 @@ impl RedisBanChecker {
 
     #[tracing::instrument(skip(self))]
     pub async fn get_ttl(&self, key: String) -> Result<Option<u64>, error::Redis> {
-        let dur = self.timeout.to_std().map_err(|_| error::Redis::Internal)?;
-        tokio::time::timeout(dur, self._get_ttl(format!("{}{}", self.key_prefix, key)))
+        tokio::time::timeout(self.timeout, self._get_ttl(format!("{}{}", self.key_prefix, key)))
             .await
             .map_err(|_| error::Redis::Timeout)?
     }
