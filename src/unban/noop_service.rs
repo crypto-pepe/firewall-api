@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use crate::model::UnBanEntity;
 use crate::unban::{UnBanner, UnbanStatus};
 

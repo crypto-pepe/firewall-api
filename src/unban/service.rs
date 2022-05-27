@@ -1,17 +1,10 @@
-mod noop_service;
-mod service;
 
-use std::collections::HashMap;
-
-use anyhow::Error;
 use async_trait::async_trait;
 use reqwest::header::CONTENT_TYPE;
 use reqwest::StatusCode;
-use serde::{Deserialize, Serialize};
 
-use crate::api::http_error::ErrorResponse;
-use crate::model::{BanTarget, UnBanEntity};
-use crate::unban::Executor;
+use crate::model::{ UnBanEntity};
+use crate::unban::{Executor, UnBanner, UnbanStatus};
 
 
 pub struct Service {
@@ -24,7 +17,7 @@ impl Service {
         let cli = reqwest::Client::new();
         Service {
             cli,
-            executors: executors.clone(),
+            executors,
         }
     }
 }
@@ -40,8 +33,7 @@ impl UnBanner for Service {
                 .body(serde_json::to_vec(&ut).expect("UnBanEntity derives Serialize"))
                 .header(CONTENT_TYPE, "application/json".to_string())
                 .send()
-                .await
-                .map_err(|e| anyhow::Error::from(e));
+                .await;
             if let Err(e) = resp {
                 tracing::error!("{:?}",e);
                 ubs.push(UnbanStatus::Error(exec.name.clone(), "internal error".to_string()));

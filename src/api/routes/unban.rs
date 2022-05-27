@@ -1,9 +1,7 @@
 use actix_web::{post, HttpResponse, Responder, ResponseError, web};
 use actix_web::web::Data;
 use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
 
-use crate::api::http_error;
 use crate::api::http_error::ErrorResponse;
 use crate::model::UnBanEntity;
 use crate::unban::UnBanner;
