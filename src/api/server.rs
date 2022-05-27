@@ -1,13 +1,13 @@
 use std::sync::Arc;
 
-use actix_web::{App, dev, error, HttpResponse, HttpServer, web};
 use actix_web::web::Data;
+use actix_web::{dev, error, web, App, HttpResponse, HttpServer};
 use anyhow::anyhow;
 use mime;
 use tokio::io;
 use tracing_actix_web::TracingLogger;
 
-use crate::api::{Config, routes};
+use crate::api::{routes, Config};
 use crate::ban_checker::BanChecker;
 use crate::unban::UnBanner;
 
@@ -16,7 +16,11 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new(cfg: &Config, bc: Box<dyn BanChecker + Sync + Send>, unban_svc: Box<dyn UnBanner + Sync + Send>) -> Result<Server, io::Error> {
+    pub fn new(
+        cfg: &Config,
+        bc: Box<dyn BanChecker + Sync + Send>,
+        unban_svc: Box<dyn UnBanner + Sync + Send>,
+    ) -> Result<Server, io::Error> {
         let bc = Data::from(Arc::new(bc));
         let ub = Data::from(Arc::new(unban_svc));
 
@@ -44,6 +48,8 @@ fn server_config() -> Box<dyn Fn(&mut web::ServiceConfig)> {
             .error_handler(|err, _| {
                 error::InternalError::from_response(err, HttpResponse::BadRequest().into()).into()
             });
-        cfg.app_data(json_cfg).service(routes::check_ban).service(routes::process_unban);
+        cfg.app_data(json_cfg)
+            .service(routes::check_ban)
+            .service(routes::process_unban);
     })
 }

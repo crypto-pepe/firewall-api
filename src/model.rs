@@ -15,7 +15,7 @@ impl Display for UnBanEntity {
     }
 }
 
-#[derive(Debug,Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BanTarget {
     pub ip: Option<String>,
     pub user_agent: Option<String>,

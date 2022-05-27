@@ -1,13 +1,14 @@
-mod noop_service;
-mod service;
 use std::collections::HashMap;
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
-use crate::api::http_error::ErrorResponse;
 pub use service::Service;
+
+use crate::api::http_error::ErrorResponse;
 use crate::api::UnBanRequest;
+
+mod service;
 
 #[async_trait]
 pub trait UnBanner {
