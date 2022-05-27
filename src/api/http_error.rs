@@ -1,15 +1,17 @@
+use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 
-use crate::api::routes::check::BanTargetConversionError;
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
 use serde::Serialize;
+
+use crate::api::routes::check::BanTargetConversionError;
 
 #[derive(Debug, Serialize)]
 pub struct ErrorResponse {
     pub(crate) code: u16,
     pub(crate) reason: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) details: Option<String>, // field name -> description,
+    pub(crate) details: Option<HashMap<String, String>>, // field name -> description,
 }
 
 impl Into<ErrorResponse> for BanTargetConversionError {
@@ -17,7 +19,7 @@ impl Into<ErrorResponse> for BanTargetConversionError {
         ErrorResponse {
             code: 400,
             reason: "Provided request does not match the constraints".into(),
-            details: Some(self.to_string()),
+            details: Some(HashMap::from([("target".into(), self.to_string())])),
         }
     }
 }

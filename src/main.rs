@@ -5,6 +5,7 @@ mod error;
 mod model;
 mod redis;
 mod telemetry;
+mod unban;
 
 use crate::redis::get_pool;
 use api::Server;
@@ -30,17 +31,14 @@ async fn main() -> anyhow::Result<()> {
     };
 
     let dur: std::time::Duration = cfg.redis_query_timeout.into();
-    let ban_checker = match RedisBanChecker::new(
-        redis_pool,
-        dur,
-        cfg.redis_keys_prefix.clone(),
-    )
-    .await
-    {
-        Ok(r) => r,
-        Err(e) => panic!("can't setup redis {:?}", e),
-    };
+    let ban_checker =
+        match RedisBanChecker::new(redis_pool, dur, cfg.redis_keys_prefix.clone()).await {
+            Ok(r) => r,
+            Err(e) => panic!("can't setup redis {:?}", e),
+        };
 
-    let srv = Server::new(&cfg.server, Box::new(ban_checker))?;
+    let unban_svc = unban::Service::new(cfg.executors);
+
+    let srv = Server::new(&cfg.server, Box::new(ban_checker), Box::new(unban_svc))?;
     srv.run().await
 }

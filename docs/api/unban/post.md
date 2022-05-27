@@ -66,7 +66,7 @@ Unbans all targets or target with provided details.
     "code": 500,
     "reason": "Some executors didn't unban successfully",
     "details": {
-        "executor_1": "204 NO CONTENT",
+        "executor_1": "OK",
         "executor_2": "500 INTERNAL SERVER ERROR"
     }
 }
