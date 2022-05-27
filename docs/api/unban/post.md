@@ -65,16 +65,9 @@ Unbans all targets or target with provided details.
 {
     "code": 500,
     "reason": "Some executors didn't unban successfully",
-    "details": [
-        {
-            "url": "http://localhost:1234/api/executor_1/unban",
-            "code": 500,
-            "body": "{\"code\":500, \"reason\":\"timeout\"}"
-        },
-        {
-            "url": "http://localhost:1234/api/executor_2/unban",
-            "code": 204
-        }
-    ]
+    "details": {
+        "executor_1": "204 NO CONTENT",
+        "executor_2": "500 INTERNAL SERVER ERROR"
+    }
 }
 ```
