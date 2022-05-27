@@ -25,7 +25,7 @@ pub struct Executor {
 pub enum UnbanStatus {
     // Exec name
     Ok(String),
-    // Exec name, code
+    // Exec name, error
     Error(String, String),
 }
 
