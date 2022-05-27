@@ -17,7 +17,7 @@ pub async fn process_unban(
     unban_req: web::Json<UnBanRequest>,
     unban: Data<Box<dyn UnBanner + Sync + Send>>,
 ) -> Result<impl Responder, impl ResponseError> {
-    match unban.unban(unban_req.0.target).await {
+    match unban.unban(unban_req.0).await {
         Ok(()) => Ok(HttpResponse::NoContent().finish()),
         Err(e) => {
             tracing::error!("ban target: {:?}", e);
