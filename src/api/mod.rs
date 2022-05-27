@@ -3,7 +3,7 @@ pub use server::Server;
 
 pub mod config;
 #[allow(clippy::from_over_into)]
-mod http_error;
+pub mod http_error;
 #[allow(clippy::from_over_into)]
 pub mod response;
 mod routes;

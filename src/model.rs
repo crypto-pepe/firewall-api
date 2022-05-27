@@ -1,8 +1,21 @@
+use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display, Error, Formatter};
 
-use serde::{Deserialize, Serialize};
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+#[serde(untagged)]
+pub enum UnBanEntity {
+    Target(BanTarget),
+    Pattern(String),
+}
 
-#[derive(Debug, Serialize, Deserialize)]
+impl Display for UnBanEntity {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(serde_json::to_string(self).unwrap().as_str())
+    }
+}
+
+#[derive(Debug,Clone, Serialize, Deserialize)]
 pub struct BanTarget {
     pub ip: Option<String>,
     pub user_agent: Option<String>,
