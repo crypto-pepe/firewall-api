@@ -6,12 +6,12 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 use crate::api::http_error::ErrorResponse;
-use crate::model::{UnBanEntity};
 pub use service::Service;
+use crate::api::UnBanRequest;
 
 #[async_trait]
 pub trait UnBanner {
-    async fn unban(&self, ut: UnBanEntity) -> Result<(), Vec<UnbanStatus>>;
+    async fn unban(&self, ur: UnBanRequest) -> Result<(), Vec<UnbanStatus>>;
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

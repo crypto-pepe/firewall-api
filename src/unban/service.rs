@@ -2,6 +2,7 @@
 use async_trait::async_trait;
 use reqwest::header::CONTENT_TYPE;
 use reqwest::StatusCode;
+use crate::api::UnBanRequest;
 
 use crate::model::{ UnBanEntity};
 use crate::unban::{Executor, UnBanner, UnbanStatus};
@@ -24,13 +25,13 @@ impl Service {
 
 #[async_trait]
 impl UnBanner for Service {
-    async fn unban(&self, ut: UnBanEntity) -> Result<(), Vec<UnbanStatus>> {
+    async fn unban(&self, ur: UnBanRequest) -> Result<(), Vec<UnbanStatus>> {
         let mut ubs = Vec::new();
         for exec in &self.executors {
             let resp = self
                 .cli
                 .delete(&exec.url)
-                .body(serde_json::to_vec(&ut).expect("UnBanEntity derives Serialize"))
+                .body(serde_json::to_vec(&ur).expect("UnBanEntity derives Serialize"))
                 .header(CONTENT_TYPE, "application/json".to_string())
                 .send()
                 .await;
@@ -41,7 +42,7 @@ impl UnBanner for Service {
             }
             let resp = resp.unwrap();
             if resp.status() != StatusCode::NO_CONTENT {
-                ubs.push(UnbanStatus::Error(exec.name.clone(), resp.status().to_string()))
+                ubs.push(UnbanStatus::Error(exec.name.clone(), resp.status().canonical_reason().unwrap_or("internal error").to_string()))
             } else {
                 ubs.push(UnbanStatus::Ok(exec.name.clone()))
             }
