@@ -51,7 +51,7 @@ impl UnBanner for Service {
                 });
             }
         }
-        if ubs.len() > 0 {
+        if !ubs.is_empty() {
             return Err(ubs);
         }
         Ok(())
