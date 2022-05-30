@@ -17,7 +17,7 @@ impl UnBanEntity {
         match self {
             UnBanEntity::Target(bt) => {
                 if bt.ip.is_none() && bt.user_agent.is_none() {
-                    Err(BanTargetConversionError::FieldRequired)
+                    Err(BanTargetConversionError::IPOrUserAgentRequired)
                 } else {
                     Ok(())
                 }

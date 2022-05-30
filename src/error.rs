@@ -40,7 +40,7 @@ pub enum Redis {
 
 #[derive(Debug, PartialEq)]
 pub enum BanTargetConversionError {
-    FieldRequired,
+    IPOrUserAgentRequired,
     TargetRequired,
     PatternUnsupported,
 }
@@ -48,7 +48,7 @@ pub enum BanTargetConversionError {
 impl Display for BanTargetConversionError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(match self {
-            BanTargetConversionError::FieldRequired => {
+            BanTargetConversionError::IPOrUserAgentRequired => {
                 "at least on field required: 'ip', 'user_agent'"
             }
             BanTargetConversionError::PatternUnsupported => "\"*\" is only allowed pattern",
