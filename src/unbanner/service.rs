@@ -21,10 +21,10 @@ impl Service {
 impl UnBanner for Service {
     async fn unban(&self, ur: UnBanRequest) -> Result<(), Vec<UnbanStatus>> {
         let mut ubs = Vec::new();
-        for exec in &self.executors {
+        for executor in &self.executors {
             let resp = self
                 .cli
-                .delete(&exec.url)
+                .delete(&executor.url)
                 .body(serde_json::to_vec(&ur).expect("UnBanEntity derives Serialize"))
                 .header(CONTENT_TYPE, "application/json".to_string())
                 .send()
@@ -32,7 +32,7 @@ impl UnBanner for Service {
             if let Err(e) = resp {
                 tracing::error!("{:?}", e);
                 ubs.push(UnbanStatus::Error(
-                    exec.name.clone(),
+                    executor.name.clone(),
                     "internal error".to_string(),
                 ));
                 continue;
@@ -40,14 +40,14 @@ impl UnBanner for Service {
             let resp = resp.unwrap();
             if resp.status() != StatusCode::NO_CONTENT {
                 ubs.push(UnbanStatus::Error(
-                    exec.name.clone(),
+                    executor.name.clone(),
                     resp.status()
                         .canonical_reason()
                         .unwrap_or("internal error")
                         .to_string(),
                 ))
             } else {
-                ubs.push(UnbanStatus::Ok(exec.name.clone()))
+                ubs.push(UnbanStatus::Ok(executor.name.clone()))
             }
         }
         if ubs.iter().any(|a| matches!(a, UnbanStatus::Error(_, _))) {
