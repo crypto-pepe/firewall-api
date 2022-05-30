@@ -11,7 +11,11 @@ pub enum UnBanEntity {
 
 impl Display for UnBanEntity {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(serde_json::to_string(self).expect("UnBanEntity derives Serialize").as_str())
+        f.write_str(
+            serde_json::to_string(self)
+                .expect("UnBanEntity derives Serialize")
+                .as_str(),
+        )
     }
 }
 
