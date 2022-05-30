@@ -18,10 +18,10 @@ pub struct Server {
 impl Server {
     pub fn new(
         cfg: &Config,
-        bc: Box<dyn BanChecker + Sync + Send>,
+        banchecker_svc: Box<dyn BanChecker + Sync + Send>,
         unban_svc: Box<dyn UnBanner + Sync + Send>,
     ) -> Result<Server, io::Error> {
-        let bc = Data::from(Arc::new(bc));
+        let bc = Data::from(Arc::new(banchecker_svc));
         let ub = Data::from(Arc::new(unban_svc));
 
         let srv = HttpServer::new(move || {
