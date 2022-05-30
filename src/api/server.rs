@@ -9,7 +9,7 @@ use tracing_actix_web::TracingLogger;
 
 use crate::api::{routes, Config};
 use crate::ban_checker::BanChecker;
-use crate::unban::UnBanner;
+use crate::unbanner::UnBanner;
 
 pub struct Server {
     srv: dev::Server,

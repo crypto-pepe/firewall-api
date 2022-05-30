@@ -5,7 +5,7 @@ mod error;
 mod model;
 mod redis;
 mod telemetry;
-mod unban;
+mod unbanner;
 
 use crate::redis::get_pool;
 use api::Server;
@@ -37,7 +37,7 @@ async fn main() -> anyhow::Result<()> {
             Err(e) => panic!("can't setup redis {:?}", e),
         };
 
-    let unban_svc = unban::Service::new(cfg.executors);
+    let unban_svc = unbanner::Service::new(cfg.executors);
 
     let srv = Server::new(&cfg.server, Box::new(ban_checker), Box::new(unban_svc))?;
     srv.run().await

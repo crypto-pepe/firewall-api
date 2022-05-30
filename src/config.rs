@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::api;
 use crate::telemetry;
-use crate::unban::Executor;
+use crate::unbanner::Executor;
 
 pub const DEFAULT_CONFIG: &str = include_str!("../config.yaml");
 

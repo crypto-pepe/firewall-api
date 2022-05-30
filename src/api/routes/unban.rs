@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::api::http_error::ErrorResponse;
 use crate::model::UnBanEntity;
-use crate::unban::UnBanner;
+use crate::unbanner::UnBanner;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct UnBanRequest {

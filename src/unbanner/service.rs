@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use reqwest::header::CONTENT_TYPE;
 use reqwest::StatusCode;
 
-use crate::unban::{Executor, UnBanner, UnbanStatus};
+use crate::unbanner::{Executor, UnBanner, UnbanStatus};
 
 pub struct Service {
     cli: reqwest::Client,
