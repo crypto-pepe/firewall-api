@@ -1,5 +1,8 @@
-use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display, Error, Formatter};
+
+use serde::{Deserialize, Serialize};
+
+use crate::error::BanTargetConversionError;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -7,6 +10,27 @@ use std::fmt::{Debug, Display, Error, Formatter};
 pub enum UnBanEntity {
     Target(BanTarget),
     Pattern(String),
+}
+
+impl UnBanEntity {
+    pub fn verify(&self) -> Result<(), BanTargetConversionError> {
+        match self {
+            UnBanEntity::Target(bt) => {
+                if bt.ip.is_none() && bt.user_agent.is_none() {
+                    Err(BanTargetConversionError::FieldRequired)
+                } else {
+                    Ok(())
+                }
+            }
+            UnBanEntity::Pattern(p) => {
+                if p.ne("*") {
+                    Err(BanTargetConversionError::PatternUnsupported)
+                } else {
+                    Ok(())
+                }
+            }
+        }
+    }
 }
 
 impl Display for UnBanEntity {

@@ -17,6 +17,9 @@ pub async fn process_unban(
     unban_req: web::Json<UnBanRequest>,
     unban: Data<Box<dyn UnBanner + Sync + Send>>,
 ) -> Result<impl Responder, impl ResponseError> {
+    if let Err(e) = unban_req.target.verify() {
+        return Err(e.into());
+    }
     match unban.unban(unban_req.0).await {
         Ok(()) => Ok(HttpResponse::NoContent().finish()),
         Err(e) => {

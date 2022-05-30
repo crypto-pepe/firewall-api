@@ -1,6 +1,8 @@
+use std::fmt::Display;
+use std::sync::Arc;
+
 use bb8::RunError;
 use redis::RedisError;
-use std::sync::Arc;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -34,4 +36,21 @@ pub enum Redis {
 
     #[error("timeout")]
     Timeout,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum BanTargetConversionError {
+    FieldRequired,
+    PatternUnsupported,
+}
+
+impl Display for BanTargetConversionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            BanTargetConversionError::FieldRequired => {
+                "at least on field required: 'ip', 'user_agent'"
+            }
+            BanTargetConversionError::PatternUnsupported => "\"*\" is only allowed pattern",
+        })
+    }
 }
