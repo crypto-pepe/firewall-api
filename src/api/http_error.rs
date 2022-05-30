@@ -5,7 +5,7 @@ use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
 use serde::Serialize;
 
 use crate::api::routes::check::BanTargetConversionError;
-use crate::unbanner::UnbanStatus;
+use crate::unbanner::UnbanError;
 
 #[derive(Debug, Serialize)]
 pub struct ErrorResponse {
@@ -41,15 +41,12 @@ impl ResponseError for ErrorResponse {
     }
 }
 
-impl From<Vec<UnbanStatus>> for ErrorResponse {
-    fn from(uss: Vec<UnbanStatus>) -> Self {
-        let mut desc = HashMap::new();
-        for us in uss {
-            match us {
-                UnbanStatus::Ok(s) => desc.insert(s, "OK".to_string()),
-                UnbanStatus::Error(s, c) => desc.insert(s, c),
-            };
-        }
+impl From<Vec<UnbanError>> for ErrorResponse {
+    fn from(uss: Vec<UnbanError>) -> Self {
+        let desc = HashMap::from_iter(
+            uss.iter()
+                .map(|us| (us.executor_name.clone(), us.error_desc.clone())),
+        );
         ErrorResponse {
             code: 500,
             reason: "Some executors didn't unban successfully".to_string(),
