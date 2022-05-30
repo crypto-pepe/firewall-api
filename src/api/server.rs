@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
 use actix_web::web::Data;
-use actix_web::{dev, error, web, App, HttpResponse, HttpServer};
+use actix_web::{dev, error, web, App, HttpServer, ResponseError};
 use anyhow::anyhow;
 use mime;
 use tokio::io;
 use tracing_actix_web::TracingLogger;
 
+use crate::api::http_error::ErrorResponse;
 use crate::api::{routes, Config};
 use crate::ban_checker::BanChecker;
 use crate::unbanner::UnBanner;
@@ -46,7 +47,17 @@ fn server_config() -> Box<dyn Fn(&mut web::ServiceConfig)> {
         let json_cfg = web::JsonConfig::default()
             .content_type(|mime| mime == mime::APPLICATION_JSON)
             .error_handler(|err, _| {
-                error::InternalError::from_response(err, HttpResponse::BadRequest().into()).into()
+                let reason = err.to_string();
+                error::InternalError::from_response(
+                    err,
+                    ErrorResponse {
+                        code: 400,
+                        reason,
+                        details: None,
+                    }
+                    .error_response(),
+                )
+                .into()
             });
         cfg.app_data(json_cfg)
             .service(routes::check_ban)

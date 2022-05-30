@@ -41,6 +41,7 @@ pub enum Redis {
 #[derive(Debug, PartialEq)]
 pub enum BanTargetConversionError {
     FieldRequired,
+    TargetRequired,
     PatternUnsupported,
 }
 
@@ -51,6 +52,7 @@ impl Display for BanTargetConversionError {
                 "at least on field required: 'ip', 'user_agent'"
             }
             BanTargetConversionError::PatternUnsupported => "\"*\" is only allowed pattern",
+            BanTargetConversionError::TargetRequired => "'target' field is required",
         })
     }
 }
