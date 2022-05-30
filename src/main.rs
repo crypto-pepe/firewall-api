@@ -30,9 +30,9 @@ async fn main() -> anyhow::Result<()> {
         Err(e) => panic!("create redis pool {:?}", e),
     };
 
-    let dur: std::time::Duration = cfg.redis_query_timeout.into();
+    let redis_query_timeout: std::time::Duration = cfg.redis_query_timeout.into();
     let ban_checker =
-        match RedisBanChecker::new(redis_pool, dur, cfg.redis_keys_prefix.clone()).await {
+        match RedisBanChecker::new(redis_pool, redis_query_timeout, cfg.redis_keys_prefix.clone()).await {
             Ok(r) => r,
             Err(e) => panic!("can't setup redis {:?}", e),
         };
