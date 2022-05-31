@@ -5,10 +5,11 @@ use reqwest::StatusCode;
 use serde::Serialize;
 
 use crate::error::ExecutorError;
+use crate::executor::config::ExecutorInfo;
 use crate::executor::Config;
 
 pub struct Client {
-    executors: Vec<Config>,
+    executors: Vec<ExecutorInfo>,
     client: reqwest::Client,
 }
 
@@ -18,9 +19,12 @@ struct ExecutorConfigRequest {
 }
 
 impl Client {
-    pub fn new(executors: Vec<Config>) -> Self {
+    pub fn new(cfg: Config) -> Self {
         let client = reqwest::Client::new();
-        Client { client, executors }
+        Client {
+            client,
+            executors: cfg as Vec<ExecutorInfo>,
+        }
     }
 
     pub async fn enable_dry_run_mode(&self, enabled: bool) -> Result<(), Vec<ExecutorError>> {

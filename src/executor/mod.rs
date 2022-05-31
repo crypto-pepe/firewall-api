@@ -1,9 +1,5 @@
-use serde::{Deserialize, Serialize};
 pub mod client;
-pub use client::Client;
+pub mod config;
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct Config {
-    pub name: String,
-    pub base_url: String,
-}
+pub use client::Client;
+pub use config::Config;
