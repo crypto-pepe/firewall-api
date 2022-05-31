@@ -55,10 +55,9 @@ Enables or disables dry run mode for each executor
 ```json
 {
     "code": 500,
-    "reason": "Some executors didn't set dry run successfully",
+    "reason": "Some executors didn't response with success",
     "details": {
-        "executor_1": "OK",
-        "executor_2": "500 INTERNAL SERVER ERROR"
+        "executor_2": "Internal server error"
     }
 }
 ```

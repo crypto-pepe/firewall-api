@@ -47,7 +47,7 @@ impl From<Vec<ExecutorError>> for ErrorResponse {
         );
         ErrorResponse {
             code: 500,
-            reason: "Some executors didn't respond with success".to_string(),
+            reason: "Some executors didn't response with success".to_string(),
             details: Some(desc),
         }
     }

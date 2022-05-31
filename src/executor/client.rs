@@ -24,7 +24,7 @@ impl Client {
     }
 
     pub async fn enable_dry_run_mode(&self, enabled: bool) -> Result<(), Vec<ExecutorError>> {
-        self._do_request(
+        self.do_request(
             reqwest::Method::POST,
             "/config".to_string(),
             Some(&ExecutorConfigRequest { dry_run: enabled }),
@@ -34,7 +34,7 @@ impl Client {
     }
 
     pub async fn unban(&self, req: UnBanRequest) -> Result<(), Vec<ExecutorError>> {
-        self._do_request(
+        self.do_request(
             reqwest::Method::DELETE,
             "/bans".to_string(),
             Some(req),
@@ -43,7 +43,7 @@ impl Client {
         .await
     }
 
-    async fn _do_request<T: Serialize>(
+    async fn do_request<T: Serialize>(
         &self,
         method: reqwest::Method,
         path: String,

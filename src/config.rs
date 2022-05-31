@@ -2,8 +2,8 @@ use pepe_config::{ConfigError, FileFormat};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
-use crate::{api, executor};
 use crate::telemetry;
+use crate::{api, executor};
 
 pub const DEFAULT_CONFIG: &str = include_str!("../config.yaml");
 
