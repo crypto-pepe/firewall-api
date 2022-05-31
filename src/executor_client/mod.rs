@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
-pub mod service;
-pub use service::ExecutorClient;
+pub mod client;
+pub use client::ExecutorClient;
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct Executor {
+pub struct ExecutorConfig {
     pub name: String,
     pub base_url: String,
 }

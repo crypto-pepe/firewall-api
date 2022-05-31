@@ -5,10 +5,10 @@ use reqwest::StatusCode;
 use serde::Serialize;
 
 use crate::error::ExecutorError;
-use crate::executor_client::Executor;
+use crate::executor_client::ExecutorConfig;
 
 pub struct ExecutorClient {
-    executors: Vec<Executor>,
+    executors: Vec<ExecutorConfig>,
     client: reqwest::Client,
 }
 
@@ -18,10 +18,31 @@ struct ExecutorConfigRequest {
 }
 
 impl ExecutorClient {
-    pub fn new(executors: Vec<Executor>) -> Self {
+    pub fn new(executors: Vec<ExecutorConfig>) -> Self {
         let client = reqwest::Client::new();
         ExecutorClient { client, executors }
     }
+
+    pub async fn enable_dry_run_mode(&self, enabled: bool) -> Result<(), Vec<ExecutorError>> {
+        self._do_request(
+            "POST".to_string(),
+            "/config".to_string(),
+            Some(&ExecutorConfigRequest { dry_run: enabled }),
+            StatusCode::NO_CONTENT,
+        )
+        .await
+    }
+
+    pub async fn unban(&self, req: UnBanRequest) -> Result<(), Vec<ExecutorError>> {
+        self._do_request(
+            "DELETE".to_string(),
+            "/bans".to_string(),
+            Some(req),
+            StatusCode::NO_CONTENT,
+        )
+        .await
+    }
+
     async fn _do_request<T: Serialize>(
         &self,
         method: String,
@@ -73,25 +94,5 @@ impl ExecutorClient {
             return Err(ubs);
         }
         Ok(())
-    }
-
-    pub async fn enable_dry_run_mode(&self, enabled: bool) -> Result<(), Vec<ExecutorError>> {
-        self._do_request(
-            "POST".to_string(),
-            "/config".to_string(),
-            Some(&ExecutorConfigRequest { dry_run: enabled }),
-            StatusCode::NO_CONTENT,
-        )
-        .await
-    }
-
-    pub async fn unban(&self, req: UnBanRequest) -> Result<(), Vec<ExecutorError>> {
-        self._do_request(
-            "DELETE".to_string(),
-            "/bans".to_string(),
-            Some(req),
-            StatusCode::NO_CONTENT,
-        )
-        .await
     }
 }
