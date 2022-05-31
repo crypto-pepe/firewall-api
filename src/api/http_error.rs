@@ -1,6 +1,7 @@
+use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 
-use crate::api::routes::check::BanTargetConversionError;
+use crate::error::{BanTargetConversionError, ExecutorError};
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
 use serde::Serialize;
 
@@ -9,15 +10,15 @@ pub struct ErrorResponse {
     pub(crate) code: u16,
     pub(crate) reason: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) details: Option<String>, // field name -> description,
+    pub(crate) details: Option<HashMap<String, String>>, // field name -> description,
 }
 
-impl Into<ErrorResponse> for BanTargetConversionError {
-    fn into(self) -> ErrorResponse {
+impl From<BanTargetConversionError> for ErrorResponse {
+    fn from(btce: BanTargetConversionError) -> Self {
         ErrorResponse {
             code: 400,
             reason: "Provided request does not match the constraints".into(),
-            details: Some(self.to_string()),
+            details: Some(HashMap::from([("target".into(), btce.to_string())])),
         }
     }
 }
@@ -35,5 +36,19 @@ impl ResponseError for ErrorResponse {
 
     fn error_response(&self) -> HttpResponse {
         HttpResponse::build(self.status_code()).json(self)
+    }
+}
+
+impl From<Vec<ExecutorError>> for ErrorResponse {
+    fn from(uss: Vec<ExecutorError>) -> Self {
+        let desc = HashMap::from_iter(
+            uss.iter()
+                .map(|us| (us.executor_name.clone(), us.error_desc.clone())),
+        );
+        ErrorResponse {
+            code: 500,
+            reason: "Some executors didn't respond with success".to_string(),
+            details: Some(desc),
+        }
     }
 }

@@ -2,6 +2,7 @@ mod api;
 mod ban_checker;
 mod config;
 mod error;
+mod executor_client;
 mod model;
 mod redis;
 mod telemetry;
@@ -30,17 +31,13 @@ async fn main() -> anyhow::Result<()> {
     };
 
     let dur: std::time::Duration = cfg.redis_query_timeout.into();
-    let ban_checker = match RedisBanChecker::new(
-        redis_pool,
-        dur,
-        cfg.redis_keys_prefix.clone(),
-    )
-    .await
-    {
-        Ok(r) => r,
-        Err(e) => panic!("can't setup redis {:?}", e),
-    };
+    let ban_checker =
+        match RedisBanChecker::new(redis_pool, dur, cfg.redis_keys_prefix.clone()).await {
+            Ok(r) => r,
+            Err(e) => panic!("can't setup redis {:?}", e),
+        };
 
-    let srv = Server::new(&cfg.server, Box::new(ban_checker))?;
+    let executor_client = executor_client::ExecutorClient::new(cfg.executors.clone());
+    let srv = Server::new(&cfg.server, Box::new(ban_checker), executor_client)?;
     srv.run().await
 }
