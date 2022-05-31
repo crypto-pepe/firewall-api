@@ -1,9 +1,5 @@
 # Firewall-api
 
-Implements `POST /api/check-ban`
-from [this](https://github.com/crypto-pepe/firewall/wiki/Banned-Targets#check-targets-ban)
-api
-
 ## ENVs
 
 | Name        | Required | Note                                                                     |
