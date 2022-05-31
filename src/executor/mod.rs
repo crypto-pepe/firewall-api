@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 pub mod client;
-pub use client::ExecutorClient;
+pub use client::Client;
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct ExecutorConfig {
+pub struct Config {
     pub name: String,
     pub base_url: String,
 }

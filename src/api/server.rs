@@ -10,7 +10,7 @@ use tracing_actix_web::TracingLogger;
 use crate::api::http_error::ErrorResponse;
 use crate::api::{routes, Config};
 use crate::ban_checker::BanChecker;
-use crate::executor_client::ExecutorClient;
+use crate::executor::Client;
 
 pub struct Server {
     srv: dev::Server,
@@ -20,7 +20,7 @@ impl Server {
     pub fn new(
         cfg: &Config,
         bc: Box<dyn BanChecker + Sync + Send>,
-        executor_client: ExecutorClient,
+        executor_client: Client,
     ) -> Result<Server, io::Error> {
         let bc = Data::from(Arc::new(bc));
         let ec = Data::from(Arc::new(executor_client));

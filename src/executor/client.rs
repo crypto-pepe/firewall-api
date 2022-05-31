@@ -5,10 +5,10 @@ use reqwest::StatusCode;
 use serde::Serialize;
 
 use crate::error::ExecutorError;
-use crate::executor_client::ExecutorConfig;
+use crate::executor::Config;
 
-pub struct ExecutorClient {
-    executors: Vec<ExecutorConfig>,
+pub struct Client {
+    executors: Vec<Config>,
     client: reqwest::Client,
 }
 
@@ -17,15 +17,15 @@ struct ExecutorConfigRequest {
     dry_run: bool,
 }
 
-impl ExecutorClient {
-    pub fn new(executors: Vec<ExecutorConfig>) -> Self {
+impl Client {
+    pub fn new(executors: Vec<Config>) -> Self {
         let client = reqwest::Client::new();
-        ExecutorClient { client, executors }
+        Client { client, executors }
     }
 
     pub async fn enable_dry_run_mode(&self, enabled: bool) -> Result<(), Vec<ExecutorError>> {
         self._do_request(
-            "POST".to_string(),
+            reqwest::Method::POST,
             "/config".to_string(),
             Some(&ExecutorConfigRequest { dry_run: enabled }),
             StatusCode::NO_CONTENT,
@@ -35,7 +35,7 @@ impl ExecutorClient {
 
     pub async fn unban(&self, req: UnBanRequest) -> Result<(), Vec<ExecutorError>> {
         self._do_request(
-            "DELETE".to_string(),
+            reqwest::Method::DELETE,
             "/bans".to_string(),
             Some(req),
             StatusCode::NO_CONTENT,
@@ -45,19 +45,16 @@ impl ExecutorClient {
 
     async fn _do_request<T: Serialize>(
         &self,
-        method: String,
+        method: reqwest::Method,
         path: String,
         payload: Option<T>,
         expected_status: StatusCode,
     ) -> Result<(), Vec<ExecutorError>> {
         let mut ubs = Vec::new();
         let handles = self.executors.iter().map(|e| {
-            let mut b = match method.as_str() {
-                "DELETE" => self.client.delete(format!("{}{}", &e.base_url, path)),
-                "POST" => self.client.post(format!("{}{}", &e.base_url, path)),
-                "GET" => self.client.post(format!("{}{}", &e.base_url, path)),
-                _ => self.client.get(format!("{}{}", &e.base_url, path)), // todo
-            };
+            let mut b = self
+                .client
+                .request(method.clone(), format!("{}{}", &e.base_url, path));
             if payload.is_some() {
                 b = b
                     .body(

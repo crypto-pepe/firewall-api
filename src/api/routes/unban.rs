@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::api::http_error::ErrorResponse;
 use crate::error::BanTargetConversionError;
-use crate::executor_client::ExecutorClient;
+use crate::executor::Client;
 use crate::model::UnBanEntity;
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -26,7 +26,7 @@ impl UnBanRequest {
 #[post("/api/unban")]
 pub async fn process_unban(
     unban_req: web::Json<UnBanRequest>,
-    client: Data<ExecutorClient>,
+    client: Data<Client>,
 ) -> Result<impl Responder, impl ResponseError> {
     if let Err(e) = unban_req.verify() {
         return Err(e.into());

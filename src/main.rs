@@ -2,7 +2,7 @@ mod api;
 mod ban_checker;
 mod config;
 mod error;
-mod executor_client;
+mod executor;
 mod model;
 mod redis;
 mod telemetry;
@@ -37,7 +37,7 @@ async fn main() -> anyhow::Result<()> {
             Err(e) => panic!("can't setup redis {:?}", e),
         };
 
-    let executor_client = executor_client::ExecutorClient::new(cfg.executors.clone());
+    let executor_client = executor::Client::new(cfg.executors.clone());
     let srv = Server::new(&cfg.server, Box::new(ban_checker), executor_client)?;
     srv.run().await
 }

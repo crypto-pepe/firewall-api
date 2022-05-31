@@ -2,8 +2,7 @@ use pepe_config::{ConfigError, FileFormat};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
-use crate::api;
-use crate::executor_client::ExecutorConfig;
+use crate::{api, executor};
 use crate::telemetry;
 
 pub const DEFAULT_CONFIG: &str = include_str!("../config.yaml");
@@ -16,7 +15,7 @@ pub struct Config {
     pub redis_keys_prefix: String,
     #[serde(default = "default_redis_query_timeout")]
     pub redis_query_timeout: duration_string::DurationString,
-    pub executors: Vec<ExecutorConfig>,
+    pub executors: Vec<executor::Config>,
 }
 
 fn default_redis_query_timeout() -> duration_string::DurationString {

@@ -3,7 +3,7 @@ use actix_web::{post, web, HttpResponse, ResponseError};
 use serde::{Deserialize, Serialize};
 
 use crate::api::http_error::ErrorResponse;
-use crate::executor_client::ExecutorClient;
+use crate::executor::Client;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DryRunModeRequest {
@@ -14,7 +14,7 @@ pub struct DryRunModeRequest {
 #[post("/api/enable-dry-run")]
 pub async fn dry_run_mode(
     req: web::Json<DryRunModeRequest>,
-    client: Data<ExecutorClient>,
+    client: Data<Client>,
 ) -> Result<HttpResponse, impl ResponseError> {
     match client.enable_dry_run_mode(req.enabled).await {
         Ok(_) => Ok(HttpResponse::NoContent().finish()),
