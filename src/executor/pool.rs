@@ -7,7 +7,7 @@ use crate::error::ExecutorError;
 use crate::executor::config::ExecutorConfig;
 use crate::executor::Config;
 
-pub struct Client {
+pub struct Pool {
     executors: Vec<ExecutorConfig>,
     client: reqwest::Client,
 }
@@ -17,10 +17,10 @@ struct ExecutorConfigRequest {
     dry_run: bool,
 }
 
-impl Client {
+impl Pool {
     pub fn new(cfg: Config) -> Self {
         let client = reqwest::Client::new();
-        Client {
+        Pool {
             client,
             executors: cfg as Vec<ExecutorConfig>,
         }

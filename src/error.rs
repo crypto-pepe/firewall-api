@@ -45,7 +45,7 @@ pub struct ExecutorError {
 
 #[derive(Debug, PartialEq)]
 pub enum BanTargetConversionError {
-    IPOrUserAgentRequired,
+    EmptyRequest,
     TargetRequired,
     PatternUnsupported,
 }
@@ -53,7 +53,7 @@ pub enum BanTargetConversionError {
 impl Display for BanTargetConversionError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(match self {
-            BanTargetConversionError::IPOrUserAgentRequired => {
+            BanTargetConversionError::EmptyRequest => {
                 "at least on field required: 'ip', 'user_agent'"
             }
             BanTargetConversionError::PatternUnsupported => "\"*\" is only allowed pattern",

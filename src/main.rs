@@ -42,7 +42,7 @@ async fn main() -> anyhow::Result<()> {
         Err(e) => panic!("can't setup redis {:?}", e),
     };
 
-    let executor_client = executor::Client::new(cfg.executors.clone());
+    let executor_client = executor::Pool::new(cfg.executors.clone());
     let srv = Server::new(&cfg.server, Box::new(ban_checker), executor_client)?;
     srv.run().await
 }
