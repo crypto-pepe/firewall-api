@@ -60,9 +60,7 @@ impl Client {
                 .client
                 .request(method.clone(), format!("{}{}", &e.base_url, path));
             if let Some(payload) = &payload {
-                b = b
-                    .json(payload)
-                    .header(CONTENT_TYPE, "application/json".to_string());
+                b = b.json(payload)
             }
             b.send()
         });
