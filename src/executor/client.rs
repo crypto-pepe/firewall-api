@@ -77,16 +77,17 @@ impl Client {
                 continue;
             }
             let resp = resp.as_ref().unwrap();
-            if resp.status() != expected_status {
-                ubs.push(ExecutorError {
-                    executor_name: executor.name.clone(),
-                    error_desc: resp
-                        .status()
-                        .canonical_reason()
-                        .unwrap_or("internal error")
-                        .to_string(),
-                });
+            if resp.status() == expected_status {
+                continue;
             }
+            ubs.push(ExecutorError {
+                executor_name: executor.name.clone(),
+                error_desc: resp
+                    .status()
+                    .canonical_reason()
+                    .unwrap_or("internal error")
+                    .to_string(),
+            });
         }
         if !ubs.is_empty() {
             return Err(ubs);
