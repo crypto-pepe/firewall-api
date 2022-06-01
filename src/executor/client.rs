@@ -34,7 +34,7 @@ impl Client {
             Some(&ExecutorConfigRequest { dry_run: enabled }),
             StatusCode::NO_CONTENT,
         )
-        .await
+            .await
     }
 
     pub async fn unban(&self, req: UnBanRequest) -> Result<(), Vec<ExecutorError>> {
@@ -44,7 +44,7 @@ impl Client {
             Some(req),
             StatusCode::NO_CONTENT,
         )
-        .await
+            .await
     }
 
     async fn do_request<T: Serialize>(
@@ -59,12 +59,9 @@ impl Client {
             let mut b = self
                 .client
                 .request(method.clone(), format!("{}{}", &e.base_url, path));
-            if payload.is_some() {
+            if let Some(payload) = &payload {
                 b = b
-                    .body(
-                        serde_json::to_vec(&payload.as_ref().unwrap())
-                            .expect("payload must derive Serialize"),
-                    )
+                    .json(payload)
                     .header(CONTENT_TYPE, "application/json".to_string());
             }
             b.send()
