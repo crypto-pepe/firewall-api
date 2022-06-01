@@ -23,7 +23,7 @@ impl UnBanRequest {
 }
 
 #[tracing::instrument(skip(client))]
-#[post("/api/unban")]
+#[delete("/api/bans")]
 pub async fn process_unban(
     unban_req: web::Json<UnBanRequest>,
     client: Data<Client>,
