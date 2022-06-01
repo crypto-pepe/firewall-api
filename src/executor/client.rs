@@ -5,11 +5,11 @@ use reqwest::StatusCode;
 use serde::Serialize;
 
 use crate::error::ExecutorError;
-use crate::executor::config::ExecutorInfo;
+use crate::executor::config::ExecutorConfig;
 use crate::executor::Config;
 
 pub struct Client {
-    executors: Vec<ExecutorInfo>,
+    executors: Vec<ExecutorConfig>,
     client: reqwest::Client,
 }
 
@@ -23,7 +23,7 @@ impl Client {
         let client = reqwest::Client::new();
         Client {
             client,
-            executors: cfg as Vec<ExecutorInfo>,
+            executors: cfg as Vec<ExecutorConfig>,
         }
     }
 
@@ -34,7 +34,7 @@ impl Client {
             Some(&ExecutorConfigRequest { dry_run: enabled }),
             StatusCode::NO_CONTENT,
         )
-            .await
+        .await
     }
 
     pub async fn unban(&self, req: UnBanRequest) -> Result<(), Vec<ExecutorError>> {
@@ -44,7 +44,7 @@ impl Client {
             Some(req),
             StatusCode::NO_CONTENT,
         )
-            .await
+        .await
     }
 
     async fn do_request<T: Serialize>(

@@ -31,11 +31,16 @@ async fn main() -> anyhow::Result<()> {
     };
 
     let redis_query_timeout: std::time::Duration = cfg.redis_query_timeout.into();
-    let ban_checker =
-        match RedisBanChecker::new(redis_pool, redis_query_timeout, cfg.redis_keys_prefix.clone()).await {
-            Ok(r) => r,
-            Err(e) => panic!("can't setup redis {:?}", e),
-        };
+    let ban_checker = match RedisBanChecker::new(
+        redis_pool,
+        redis_query_timeout,
+        cfg.redis_keys_prefix.clone(),
+    )
+    .await
+    {
+        Ok(r) => r,
+        Err(e) => panic!("can't setup redis {:?}", e),
+    };
 
     let executor_client = executor::Client::new(cfg.executors.clone());
     let srv = Server::new(&cfg.server, Box::new(ban_checker), executor_client)?;
