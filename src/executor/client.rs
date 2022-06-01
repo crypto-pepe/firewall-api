@@ -1,6 +1,5 @@
 use crate::api::UnBanRequest;
 use futures::future::join_all;
-use reqwest::header::CONTENT_TYPE;
 use reqwest::StatusCode;
 use serde::Serialize;
 
@@ -54,7 +53,6 @@ impl Client {
         payload: Option<T>,
         expected_status: StatusCode,
     ) -> Result<(), Vec<ExecutorError>> {
-        let mut ubs = Vec::new();
         let handles = self.executors.iter().map(|e| {
             let mut b = self
                 .client
@@ -65,31 +63,37 @@ impl Client {
             b.send()
         });
 
-        for (resp, executor) in join_all(handles).await.iter().zip(&self.executors) {
-            match resp {
+        let executor_errors: Vec<ExecutorError> = join_all(handles)
+            .await
+            .iter()
+            .zip(&self.executors)
+            .filter_map(|(resp, executor)| match resp {
                 Err(e) => {
                     tracing::error!("{:?}", e);
-                    ubs.push(ExecutorError {
+                    Some(ExecutorError {
                         executor_name: executor.name.clone(),
                         error_desc: e.to_string(),
                     })
                 }
                 Ok(resp) => {
                     if resp.status() != expected_status {
-                        ubs.push(ExecutorError {
+                        Some(ExecutorError {
                             executor_name: executor.name.clone(),
                             error_desc: resp
                                 .status()
                                 .canonical_reason()
                                 .unwrap_or("internal error")
                                 .to_string(),
-                        });
+                        })
+                    } else {
+                        None
                     }
                 }
-            }
-        }
-        if !ubs.is_empty() {
-            return Err(ubs);
+            })
+            .collect();
+
+        if !executor_errors.is_empty() {
+            return Err(executor_errors);
         }
         Ok(())
     }
