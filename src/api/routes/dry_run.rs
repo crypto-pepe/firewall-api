@@ -1,5 +1,5 @@
 use actix_web::web::Data;
-use actix_web::{post, web, HttpResponse, ResponseError};
+use actix_web::{patch, web, HttpResponse, ResponseError};
 use serde::{Deserialize, Serialize};
 
 use crate::api::http_error::ErrorResponse;
@@ -11,7 +11,7 @@ pub struct DryRunModeRequest {
 }
 
 #[tracing::instrument(skip(client))]
-#[post("/api/enable-dry-run")]
+#[patch("/api/dry-run-mode")]
 pub async fn dry_run_mode(
     req: web::Json<DryRunModeRequest>,
     client: Data<Client>,
