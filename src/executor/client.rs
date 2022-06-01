@@ -68,26 +68,27 @@ impl Client {
         });
 
         for (resp, executor) in join_all(handles).await.iter().zip(&self.executors) {
-            if let Err(e) = resp {
-                tracing::error!("{:?}", e);
-                ubs.push(ExecutorError {
-                    executor_name: executor.name.clone(),
-                    error_desc: e.to_string(),
-                });
-                continue;
+            match resp {
+                Err(e) => {
+                    tracing::error!("{:?}", e);
+                    ubs.push(ExecutorError {
+                        executor_name: executor.name.clone(),
+                        error_desc: e.to_string(),
+                    })
+                }
+                Ok(resp) => {
+                    if resp.status() != expected_status {
+                        ubs.push(ExecutorError {
+                            executor_name: executor.name.clone(),
+                            error_desc: resp
+                                .status()
+                                .canonical_reason()
+                                .unwrap_or("internal error")
+                                .to_string(),
+                        });
+                    }
+                }
             }
-            let resp = resp.as_ref().unwrap();
-            if resp.status() == expected_status {
-                continue;
-            }
-            ubs.push(ExecutorError {
-                executor_name: executor.name.clone(),
-                error_desc: resp
-                    .status()
-                    .canonical_reason()
-                    .unwrap_or("internal error")
-                    .to_string(),
-            });
         }
         if !ubs.is_empty() {
             return Err(ubs);
