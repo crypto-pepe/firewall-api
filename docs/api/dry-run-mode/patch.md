@@ -2,9 +2,9 @@
 
 Enables or disables dry run mode for each executor
 
-**URL** : `/api/enable-dry-run`
+**URL** : `/api/dry-run-mode`
 
-**Method** : `POST`
+**Method** : `PATCH`
 
 ### Request constraints
 

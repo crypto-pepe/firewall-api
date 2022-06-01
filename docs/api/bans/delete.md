@@ -2,9 +2,9 @@
 
 Unbans all targets or target with provided details for each executor
 
-**URL** : `/api/unban`
+**URL** : `/api/bans`
 
-**Method** : `POST`
+**Method** : `DELETE`
 
 ### Request constraints
 
