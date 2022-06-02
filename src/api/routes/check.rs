@@ -18,7 +18,7 @@ pub struct BanTargetRequest {
 impl BanTargetRequest {
     pub fn verify(&self) -> Result<(), BanTargetConversionError> {
         if self.target.ip.is_none() && self.target.user_agent.is_none() {
-            return Err(BanTargetConversionError::IPOrUserAgentRequired);
+            return Err(BanTargetConversionError::EmptyRequest);
         }
         Ok(())
     }

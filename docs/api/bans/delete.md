@@ -2,9 +2,9 @@
 
 Unbans all targets or target with provided details for each executor
 
-**URL** : `/api/unban`
+**URL** : `/api/bans`
 
-**Method** : `POST`
+**Method** : `DELETE`
 
 ### Request constraints
 
@@ -33,7 +33,7 @@ Unbans all targets or target with provided details for each executor
 
 ## Success Response
 
-**Condition** : Ban was successfully applied.
+**Condition** : Target was successfully unbanned. 
 
 **Code** : `204 NO CONTENT`
 

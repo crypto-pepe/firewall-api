@@ -1,15 +1,14 @@
 use crate::api::UnBanRequest;
 use futures::future::join_all;
-use reqwest::header::CONTENT_TYPE;
 use reqwest::StatusCode;
 use serde::Serialize;
 
 use crate::error::ExecutorError;
-use crate::executor::config::ExecutorInfo;
+use crate::executor::config::ExecutorConfig;
 use crate::executor::Config;
 
-pub struct Client {
-    executors: Vec<ExecutorInfo>,
+pub struct Pool {
+    executors: Vec<ExecutorConfig>,
     client: reqwest::Client,
 }
 
@@ -18,12 +17,12 @@ struct ExecutorConfigRequest {
     dry_run: bool,
 }
 
-impl Client {
+impl Pool {
     pub fn new(cfg: Config) -> Self {
         let client = reqwest::Client::new();
-        Client {
+        Pool {
             client,
-            executors: cfg as Vec<ExecutorInfo>,
+            executors: cfg as Vec<ExecutorConfig>,
         }
     }
 
@@ -54,45 +53,47 @@ impl Client {
         payload: Option<T>,
         expected_status: StatusCode,
     ) -> Result<(), Vec<ExecutorError>> {
-        let mut ubs = Vec::new();
         let handles = self.executors.iter().map(|e| {
             let mut b = self
                 .client
                 .request(method.clone(), format!("{}{}", &e.base_url, path));
-            if payload.is_some() {
-                b = b
-                    .body(
-                        serde_json::to_vec(&payload.as_ref().unwrap())
-                            .expect("payload must derive Serialize"),
-                    )
-                    .header(CONTENT_TYPE, "application/json".to_string());
+            if let Some(payload) = &payload {
+                b = b.json(payload)
             }
             b.send()
         });
 
-        for (resp, executor) in join_all(handles).await.iter().zip(&self.executors) {
-            if let Err(e) = resp {
-                tracing::error!("{:?}", e);
-                ubs.push(ExecutorError {
-                    executor_name: executor.name.clone(),
-                    error_desc: e.to_string(),
-                });
-                continue;
-            }
-            let resp = resp.as_ref().unwrap();
-            if resp.status() != expected_status {
-                ubs.push(ExecutorError {
-                    executor_name: executor.name.clone(),
-                    error_desc: resp
-                        .status()
-                        .canonical_reason()
-                        .unwrap_or("internal error")
-                        .to_string(),
-                });
-            }
-        }
-        if !ubs.is_empty() {
-            return Err(ubs);
+        let executor_errors: Vec<ExecutorError> = join_all(handles)
+            .await
+            .iter()
+            .zip(&self.executors)
+            .filter_map(|(resp, executor)| match resp {
+                Err(e) => {
+                    tracing::error!("{:?}", e);
+                    Some(ExecutorError {
+                        executor_name: executor.name.clone(),
+                        error_desc: e.to_string(),
+                    })
+                }
+                Ok(resp) => {
+                    if resp.status() != expected_status {
+                        Some(ExecutorError {
+                            executor_name: executor.name.clone(),
+                            error_desc: resp
+                                .status()
+                                .canonical_reason()
+                                .unwrap_or("internal error")
+                                .to_string(),
+                        })
+                    } else {
+                        None
+                    }
+                }
+            })
+            .collect();
+
+        if !executor_errors.is_empty() {
+            return Err(executor_errors);
         }
         Ok(())
     }

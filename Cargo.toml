@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 futures = "0.3.21"
 
-reqwest = "0.11.10"
+reqwest = { version = "0.11.10", features = ["json"] }
 
 duration-string = "0.0.6"
 

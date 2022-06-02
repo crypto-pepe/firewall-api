@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct ExecutorInfo {
+pub struct ExecutorConfig {
     pub name: String,
     pub base_url: String,
 }
 
-pub type Config = Vec<ExecutorInfo>;
+pub type Config = Vec<ExecutorConfig>;
