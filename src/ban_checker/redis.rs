@@ -32,16 +32,12 @@ impl BanChecker for RedisBanChecker {
 }
 
 impl RedisBanChecker {
-    pub async fn new(
-        pool: Pool<RedisConnectionManager>,
-        timeout: Duration,
-        key_prefix: String,
-    ) -> Result<Self, error::Redis> {
-        Ok(RedisBanChecker {
+    pub fn new(pool: Pool<RedisConnectionManager>, timeout: Duration, key_prefix: String) -> Self {
+        RedisBanChecker {
             pool,
             timeout,
             key_prefix,
-        })
+        }
     }
 
     #[tracing::instrument(skip(self))]
