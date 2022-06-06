@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use actix_web::web::Data;
 use actix_web::{post, web, HttpResponse, ResponseError};
 use chrono::prelude::*;
@@ -8,18 +6,9 @@ use serde::{Deserialize, Serialize};
 use crate::api::http_error::ErrorResponse;
 use crate::api::response::*;
 use crate::ban_checker::BanChecker;
+use crate::error::BanTargetConversionError;
+
 use crate::model::BanTarget;
-
-#[derive(Debug, PartialEq)]
-pub enum BanTargetConversionError {
-    FieldRequired,
-}
-
-impl Display for BanTargetConversionError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("at least on field required: 'ip', 'user_agent'")
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BanTargetRequest {
@@ -29,7 +18,7 @@ pub struct BanTargetRequest {
 impl BanTargetRequest {
     pub fn verify(&self) -> Result<(), BanTargetConversionError> {
         if self.target.ip.is_none() && self.target.user_agent.is_none() {
-            return Err(BanTargetConversionError::FieldRequired);
+            return Err(BanTargetConversionError::EmptyRequest);
         }
         Ok(())
     }

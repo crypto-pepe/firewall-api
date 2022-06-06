@@ -10,9 +10,9 @@ pub enum BanStatus {
     Banned(BannedBanStatus),
 }
 
-impl Into<HttpResponse> for BanStatus {
-    fn into(self) -> HttpResponse {
-        HttpResponse::build(StatusCode::OK).json(self)
+impl From<BanStatus> for HttpResponse {
+    fn from(bs: BanStatus) -> Self {
+        HttpResponse::build(StatusCode::OK).json(bs)
     }
 }
 

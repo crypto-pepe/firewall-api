@@ -1,26 +1,34 @@
 use std::sync::Arc;
 
 use actix_web::web::Data;
-use actix_web::{dev, error, web, App, HttpResponse, HttpServer};
+use actix_web::{dev, error, web, App, HttpServer, ResponseError};
 use anyhow::anyhow;
 use mime;
 use tokio::io;
 use tracing_actix_web::TracingLogger;
 
+use crate::api::http_error::ErrorResponse;
 use crate::api::{routes, Config};
 use crate::ban_checker::BanChecker;
+use crate::executor::Pool;
 
 pub struct Server {
     srv: dev::Server,
 }
 
 impl Server {
-    pub fn new(cfg: &Config, bc: Box<dyn BanChecker + Sync + Send>) -> Result<Server, io::Error> {
+    pub fn new(
+        cfg: &Config,
+        bc: Box<dyn BanChecker + Sync + Send>,
+        executor_client: Pool,
+    ) -> Result<Server, io::Error> {
         let bc = Data::from(Arc::new(bc));
+        let ec = Data::from(Arc::new(executor_client));
 
         let srv = HttpServer::new(move || {
             App::new()
                 .app_data(bc.clone())
+                .app_data(ec.clone())
                 .configure(server_config())
                 .wrap(TracingLogger::default())
         });
@@ -39,8 +47,21 @@ fn server_config() -> Box<dyn Fn(&mut web::ServiceConfig)> {
         let json_cfg = web::JsonConfig::default()
             .content_type(|mime| mime == mime::APPLICATION_JSON)
             .error_handler(|err, _| {
-                error::InternalError::from_response(err, HttpResponse::BadRequest().into()).into()
+                let reason = err.to_string();
+                error::InternalError::from_response(
+                    err,
+                    ErrorResponse {
+                        code: 400,
+                        reason,
+                        details: None,
+                    }
+                    .error_response(),
+                )
+                .into()
             });
-        cfg.app_data(json_cfg).service(routes::check_ban);
+        cfg.app_data(json_cfg)
+            .service(routes::check_ban)
+            .service(routes::process_unban)
+            .service(routes::dry_run_mode);
     })
 }
