@@ -1,11 +1,12 @@
 use actix_web::web::Data;
-use actix_web::{delete, web, HttpResponse, Responder, ResponseError};
+use actix_web::{delete, web, HttpRequest, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 
 use crate::api::http_error::ErrorResponse;
 use crate::error::BanTargetConversionError;
 use crate::executor::Pool;
 use crate::model::UnBanEntity;
+use crate::ApiKeyChecker;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct UnBanRequest {
@@ -21,12 +22,16 @@ impl UnBanRequest {
     }
 }
 
-#[tracing::instrument(skip(client))]
+#[tracing::instrument(skip(req, client, api_key_checker))]
 #[delete("/api/bans")]
 pub async fn process_unban(
+    req: HttpRequest,
+    api_key_checker: Data<ApiKeyChecker>,
     unban_req: web::Json<UnBanRequest>,
     client: Data<Pool>,
-) -> Result<impl Responder, impl ResponseError> {
+) -> Result<impl Responder, ErrorResponse> {
+    api_key_checker.check(&req)?;
+
     if let Err(e) = unban_req.verify() {
         return Err(e.into());
     }
@@ -35,8 +40,7 @@ pub async fn process_unban(
         Ok(()) => Ok(HttpResponse::NoContent().finish()),
         Err(e) => {
             tracing::error!("ban target: {:?}", e);
-            let err_resp: ErrorResponse = e.into();
-            Err(err_resp)
+            Err(e.into())
         }
     }
 }

@@ -13,3 +13,5 @@ executors:
     base_url: "http://localhost:8001/api"
   - name: "two"
     base_url: "http://localhost:8002/api"
+api_key_header: "X-API-KEY"
+api_key: "123"

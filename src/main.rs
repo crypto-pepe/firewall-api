@@ -7,6 +7,7 @@ mod model;
 mod redis;
 mod telemetry;
 
+use crate::api::auth::ApiKeyChecker;
 use crate::redis::get_pool;
 use api::Server;
 use ban_checker::redis::RedisBanChecker;
@@ -31,7 +32,13 @@ async fn main() -> anyhow::Result<()> {
         cfg.redis_keys_prefix.clone(),
     );
 
+    let api_key_checker = ApiKeyChecker::new(cfg.api_key_header, cfg.api_key);
     let executor_client = executor::Pool::new(cfg.executors.clone());
-    let srv = Server::new(&cfg.server, Box::new(ban_checker), executor_client)?;
+    let srv = Server::new(
+        &cfg.server,
+        Box::new(ban_checker),
+        executor_client,
+        api_key_checker,
+    )?;
     srv.run().await
 }

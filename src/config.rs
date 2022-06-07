@@ -16,6 +16,8 @@ pub struct Config {
     #[serde(default = "default_redis_query_timeout")]
     pub redis_query_timeout: duration_string::DurationString,
     pub executors: executor::Config,
+    pub api_key_header: String,
+    pub api_key: String,
 }
 
 fn default_redis_query_timeout() -> duration_string::DurationString {
