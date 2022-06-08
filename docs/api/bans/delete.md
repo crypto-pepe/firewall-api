@@ -10,7 +10,7 @@ Unbans all targets or target with provided details for each executor
 
 **Content-Type**: `application/json`
 
-**Headers**: `Auth header specified in config`
+**Headers**: `X-API-KEY`
 
 | Field    | Type                                        | Is required | Note                                              |
 |----------|---------------------------------------------|------------|---------------------------------------------------|
