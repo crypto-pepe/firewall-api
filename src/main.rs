@@ -32,7 +32,7 @@ async fn main() -> anyhow::Result<()> {
         cfg.redis_keys_prefix.clone(),
     );
 
-    let api_key_checker = ApiKeyChecker::new(cfg.api_key_header, cfg.api_key);
+    let api_key_checker = ApiKeyChecker::new(cfg.api_key);
     let executor_client = executor::Pool::new(cfg.executors.clone());
     let srv = Server::new(
         &cfg.server,
