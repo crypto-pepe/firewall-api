@@ -17,10 +17,18 @@ impl ApiKeyChecker {
             reason: format!("{} header is required", API_KEY_HEADER),
             details: None,
         })?;
-        self.key.eq(key).then(|| ()).ok_or(ErrorResponse {
-            code: 403,
-            reason: format!("{} header is invalid", API_KEY_HEADER),
+        let key = key.to_str().map_err(|_| ErrorResponse {
+            code: 400,
+            reason: format!("can't convert {} header to string", API_KEY_HEADER),
             details: None,
-        })
+        })?;
+        if self.key != key {
+            return Err(ErrorResponse {
+                code: 403,
+                reason: format!("{} header is invalid", API_KEY_HEADER),
+                details: None,
+            });
+        }
+        Ok(())
     }
 }
