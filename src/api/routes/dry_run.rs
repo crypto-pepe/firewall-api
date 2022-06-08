@@ -24,8 +24,7 @@ pub async fn dry_run_mode(
         Ok(_) => Ok(HttpResponse::NoContent().finish()),
         Err(e) => {
             tracing::error!("enable dry run mode: {:?}", e);
-            let err_resp: ErrorResponse = e.into();
-            Err(err_resp)
+            Err(ErrorResponse::from(e))
         }
     }
 }
