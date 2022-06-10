@@ -8,7 +8,7 @@ pub struct ApiKeyChecker {
 
 impl ApiKeyChecker {
     pub fn new(key: String) -> Self {
-        ApiKeyChecker { key }
+        Self { key }
     }
 
     pub fn check(&self, req: &HttpRequest) -> Result<(), ErrorResponse> {

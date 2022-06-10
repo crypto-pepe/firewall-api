@@ -6,22 +6,22 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(untagged)]
-pub enum UnBanEntity {
+pub enum UnbanEntity {
     Target(BanTarget),
     Pattern(String),
 }
 
-impl UnBanEntity {
+impl UnbanEntity {
     pub fn verify(&self) -> Result<(), BanTargetConversionError> {
         match self {
-            UnBanEntity::Target(bt) => {
+            UnbanEntity::Target(bt) => {
                 if bt.ip.is_none() && bt.user_agent.is_none() {
                     Err(BanTargetConversionError::EmptyRequest)
                 } else {
                     Ok(())
                 }
             }
-            UnBanEntity::Pattern(p) => {
+            UnbanEntity::Pattern(p) => {
                 if p.ne("*") {
                     Err(BanTargetConversionError::PatternUnsupported)
                 } else {
@@ -32,7 +32,7 @@ impl UnBanEntity {
     }
 }
 
-impl Display for UnBanEntity {
+impl Display for UnbanEntity {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_str(&*serde_json::to_string(self).map_err(|_| Error)?)
     }

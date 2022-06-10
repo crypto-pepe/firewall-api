@@ -8,6 +8,6 @@ pub mod response;
 mod routes;
 pub mod server;
 
-pub use routes::unban::UnBanRequest;
+pub use routes::unban::UnbanRequest;
 
 pub const API_KEY_HEADER: &str = "X-API-KEY";

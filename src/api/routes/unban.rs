@@ -5,15 +5,15 @@ use serde::{Deserialize, Serialize};
 use crate::api::http_error::ErrorResponse;
 use crate::error::BanTargetConversionError;
 use crate::executor::Pool;
-use crate::model::UnBanEntity;
+use crate::model::UnbanEntity;
 use crate::ApiKeyChecker;
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct UnBanRequest {
-    pub target: Option<UnBanEntity>,
+pub struct UnbanRequest {
+    pub target: Option<UnbanEntity>,
 }
 
-impl UnBanRequest {
+impl UnbanRequest {
     pub fn verify(&self) -> Result<(), BanTargetConversionError> {
         match self.target.as_ref() {
             Some(ube) => ube.verify(),
@@ -27,7 +27,7 @@ impl UnBanRequest {
 pub async fn process_unban(
     req: HttpRequest,
     api_key_checker: Data<ApiKeyChecker>,
-    unban_req: web::Json<UnBanRequest>,
+    unban_req: web::Json<UnbanRequest>,
     client: Data<Pool>,
 ) -> Result<impl Responder, ErrorResponse> {
     api_key_checker.check(&req)?;

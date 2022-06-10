@@ -15,7 +15,7 @@ pub struct ErrorResponse {
 
 impl From<BanTargetConversionError> for ErrorResponse {
     fn from(btce: BanTargetConversionError) -> Self {
-        ErrorResponse {
+        Self {
             code: 400,
             reason: "Provided request does not match the constraints".into(),
             details: Some(HashMap::from([("target".into(), btce.to_string())])),
@@ -45,7 +45,7 @@ impl From<Vec<ExecutorError>> for ErrorResponse {
             uss.iter()
                 .map(|us| (us.executor_name.clone(), us.error_desc.clone())),
         );
-        ErrorResponse {
+        Self {
             code: 500,
             reason: "Some executors didn't response with success".to_string(),
             details: Some(desc),
