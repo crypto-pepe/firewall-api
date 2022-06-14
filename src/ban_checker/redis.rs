@@ -33,7 +33,7 @@ impl BanChecker for RedisBanChecker {
 
 impl RedisBanChecker {
     pub fn new(pool: Pool<RedisConnectionManager>, timeout: Duration, key_prefix: String) -> Self {
-        RedisBanChecker {
+        Self {
             pool,
             timeout,
             key_prefix,

@@ -10,6 +10,8 @@ Unbans all targets or target with provided details for each executor
 
 **Content-Type**: `application/json`
 
+**Headers**: `X-API-KEY`
+
 | Field    | Type                                        | Is required | Note                                              |
 |----------|---------------------------------------------|------------|---------------------------------------------------|
 | `target` | `{ ip: string?, user_agent:string? } \| '*'`       | Yes         | Ban target. If target is "*" - unbans all targets |

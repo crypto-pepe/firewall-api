@@ -1,4 +1,4 @@
-use crate::api::UnBanRequest;
+use crate::api::UnbanRequest;
 use futures::future::join_all;
 use reqwest::StatusCode;
 use serde::Serialize;
@@ -20,7 +20,7 @@ struct ExecutorConfigRequest {
 impl Pool {
     pub fn new(cfg: Config) -> Self {
         let client = reqwest::Client::new();
-        Pool {
+        Self {
             client,
             executors: cfg as Vec<ExecutorConfig>,
         }
@@ -36,7 +36,7 @@ impl Pool {
         .await
     }
 
-    pub async fn unban(&self, req: UnBanRequest) -> Result<(), Vec<ExecutorError>> {
+    pub async fn unban(&self, req: UnbanRequest) -> Result<(), Vec<ExecutorError>> {
         self.do_request(
             reqwest::Method::DELETE,
             "/bans".to_string(),

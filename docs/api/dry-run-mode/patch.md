@@ -10,6 +10,8 @@ Enables or disables dry run mode for each executor
 
 **Content-Type**: `application/json`
 
+**Headers**: `X-API-KEY`
+
 | Field     | Type   | Required |
 |-----------|--------|----------|
 | `enabled` | `bool` | Yes      |

@@ -24,6 +24,7 @@
 | telemetry.svc_name        | string                             | Yes      |         | Service name for tracing                                                                 |
 | telemetry.jaeger_endpoint | string                             | No       |         | Jaeger endpoint                                                                          |
 | executors                 | []{name: string, base_url: string} | Yes      |         | List of executors                                                                        |
+| api_key                   | string                             | Yes      |         | API-key for requests to this application                                                 |
 
 ___
 

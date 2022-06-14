@@ -7,6 +7,7 @@ use mime;
 use tokio::io;
 use tracing_actix_web::TracingLogger;
 
+use crate::api::auth::ApiKeyChecker;
 use crate::api::http_error::ErrorResponse;
 use crate::api::{routes, Config};
 use crate::ban_checker::BanChecker;
@@ -19,16 +20,19 @@ pub struct Server {
 impl Server {
     pub fn new(
         cfg: &Config,
-        bc: Box<dyn BanChecker + Sync + Send>,
+        ban_checker: Box<dyn BanChecker + Sync + Send>,
         executor_client: Pool,
+        api_key_checker: ApiKeyChecker,
     ) -> Result<Server, io::Error> {
-        let bc = Data::from(Arc::new(bc));
-        let ec = Data::from(Arc::new(executor_client));
+        let ban_checker_data = Data::from(Arc::new(ban_checker));
+        let executor_client_data = Data::from(Arc::new(executor_client));
+        let api_key_checker_data = Data::from(Arc::new(api_key_checker));
 
         let srv = HttpServer::new(move || {
             App::new()
-                .app_data(bc.clone())
-                .app_data(ec.clone())
+                .app_data(ban_checker_data.clone())
+                .app_data(executor_client_data.clone())
+                .app_data(api_key_checker_data.clone())
                 .configure(server_config())
                 .wrap(TracingLogger::default())
         });
