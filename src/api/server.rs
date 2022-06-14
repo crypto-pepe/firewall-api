@@ -1,0 +1,71 @@
+use std::sync::Arc;
+
+use actix_web::web::Data;
+use actix_web::{dev, error, web, App, HttpServer, ResponseError};
+use anyhow::anyhow;
+use mime;
+use tokio::io;
+use tracing_actix_web::TracingLogger;
+
+use crate::api::auth::ApiKeyChecker;
+use crate::api::http_error::ErrorResponse;
+use crate::api::{routes, Config};
+use crate::ban_checker::BanChecker;
+use crate::executor::Pool;
+
+pub struct Server {
+    srv: dev::Server,
+}
+
+impl Server {
+    pub fn new(
+        cfg: &Config,
+        ban_checker: Box<dyn BanChecker + Sync + Send>,
+        executor_client: Pool,
+        api_key_checker: ApiKeyChecker,
+    ) -> Result<Server, io::Error> {
+        let ban_checker_data = Data::from(Arc::new(ban_checker));
+        let executor_client_data = Data::from(Arc::new(executor_client));
+        let api_key_checker_data = Data::from(Arc::new(api_key_checker));
+
+        let srv = HttpServer::new(move || {
+            App::new()
+                .app_data(ban_checker_data.clone())
+                .app_data(executor_client_data.clone())
+                .app_data(api_key_checker_data.clone())
+                .configure(server_config())
+                .wrap(TracingLogger::default())
+        });
+
+        let srv = srv.bind((cfg.host.clone(), cfg.port))?.run();
+        Ok(Server { srv })
+    }
+
+    pub async fn run(self) -> anyhow::Result<()> {
+        self.srv.await.map_err(|e| anyhow!(e))
+    }
+}
+
+fn server_config() -> Box<dyn Fn(&mut web::ServiceConfig)> {
+    Box::new(move |cfg| {
+        let json_cfg = web::JsonConfig::default()
+            .content_type(|mime| mime == mime::APPLICATION_JSON)
+            .error_handler(|err, _| {
+                let reason = err.to_string();
+                error::InternalError::from_response(
+                    err,
+                    ErrorResponse {
+                        code: 400,
+                        reason,
+                        details: None,
+                    }
+                    .error_response(),
+                )
+                .into()
+            });
+        cfg.app_data(json_cfg)
+            .service(routes::check_ban)
+            .service(routes::process_unban)
+            .service(routes::dry_run_mode);
+    })
+}

@@ -1,0 +1,16 @@
+redis:
+  host: '127.0.0.1'
+  port: 6379
+server:
+  host: '127.0.0.1'
+  port: 8000
+redis_keys_prefix: "banned::"
+telemetry:
+  svc_name: "firewall-api"
+redis_query_timeout: 2s
+executors:
+  - name: "one"
+    base_url: "http://localhost:8001/api"
+  - name: "two"
+    base_url: "http://localhost:8002/api"
+api_key: "123"
