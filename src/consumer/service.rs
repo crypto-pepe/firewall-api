@@ -1,13 +1,16 @@
-use crate::consumer::RequestConsumer;
-use crate::model::Request;
+use std::sync::Arc;
+
 use anyhow::Result;
 use async_trait::async_trait;
+use futures::executor::block_on;
 use futures::{stream, TryStreamExt};
 use kafka::consumer::{Consumer, FetchOffset, GroupOffsetStorage, MessageSet};
 use kafka::Error;
 use pepe_config::kafka::consumer::Config;
-use std::sync::Arc;
 use tokio::sync::{mpsc, Mutex};
+
+use crate::consumer::RequestConsumer;
+use crate::model::Request;
 
 pub struct KafkaRequestConsumer {
     consumer: Consumer,
@@ -53,8 +56,7 @@ impl RequestConsumer for KafkaRequestConsumer {
 
             stream
                 .try_for_each(|ms| async {
-                    let fs = ms
-                        .messages()
+                    ms.messages()
                         .iter()
                         .filter_map(|m| match serde_json::from_slice::<Vec<Request>>(m.value) {
                             Ok(r) => Some(r),
@@ -64,10 +66,8 @@ impl RequestConsumer for KafkaRequestConsumer {
                             }
                         })
                         .flatten()
-                        .map(|req| out.send(req))
-                        .collect::<Vec<_>>();
-
-                    futures::future::try_join_all(fs).await?;
+                        .map(|req| block_on(out.send(req)))
+                        .collect::<Result<Vec<_>, _>>()?;
 
                     consumer
                         .lock()
